@@ -8,11 +8,11 @@ export default function DashboardPage() {
       {/* Header Section */}
       <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-6">
         <div>
-          <span className="text-primary font-headline font-bold text-xs tracking-[0.2em] uppercase mb-2 block">
-            Explorer Overview
+          <span className="text-primary font-headline font-black text-[10px] tracking-[0.3em] uppercase mb-3 block opacity-80">
+            Explorer Portal
           </span>
-          <h1 className="text-4xl lg:text-5xl font-black text-on-background tracking-tighter">Jambo, Julian!</h1>
-          <p className="text-on-surface-variant mt-2 font-medium">Welcome back to the NakTide expedition portal.</p>
+          <h1 className="text-4xl lg:text-6xl font-black text-on-background tracking-tighter font-headline leading-none">Jambo, Julian!</h1>
+          <p className="text-on-surface-variant mt-4 font-medium text-lg lg:text-xl max-w-xl leading-relaxed">Your portal to the world's most intentional wilderness experiences.</p>
         </div>
         <div className="flex items-center gap-4 bg-surface-container-low px-6 py-3 rounded-2xl text-on-surface-variant text-sm font-bold border border-outline-variant/5">
           <span className="material-symbols-outlined text-primary">calendar_month</span>
