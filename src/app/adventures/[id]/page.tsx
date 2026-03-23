@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 import GalleryOverlay from "@/components/landing/GalleryOverlay";
+import BookingSidebar from "@/components/landing/BookingSidebar";
 import { getAdventureById } from "@/api/adventures";
 
 export default async function AdventureDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -156,40 +157,7 @@ export default async function AdventureDetailsPage({ params }: { params: Promise
 
           </div>
 
-          {/* Right Column (Sticky Booking Sidebar) */}
-          <div className="lg:col-span-4 relative">
-            <div className="sticky top-24 bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/30">
-              <div className="mb-6">
-                <span className="text-4xl font-black text-on-surface inline-block align-bottom">{adventure.price}</span>
-                <span className="text-on-surface-variant text-sm font-bold uppercase tracking-widest ml-2 align-bottom">/ person</span>
-              </div>
-              
-              <div className="space-y-4 mb-8">
-                <div className="flex justify-between items-center py-3 border-b border-outline-variant/20">
-                  <span className="text-sm text-on-surface-variant font-bold">Departure Date</span>
-                  <span className="text-sm font-bold text-on-surface">{adventure.date}</span>
-                </div>
-                <div className="flex justify-between items-center py-3 border-b border-outline-variant/20">
-                  <span className="text-sm text-on-surface-variant font-bold">Availability</span>
-                  <span className="text-sm font-black text-primary">{adventure.slots}</span>
-                </div>
-              </div>
-
-              {adventure.status === "upcoming" ? (
-                 <button className="w-full bg-primary hover:bg-[#ad2c00] text-white py-4 rounded-full font-bold text-sm uppercase tracking-widest transition-transform hover:scale-[1.02] active:scale-95 shadow-none mb-4">
-                   Reserve Spot
-                 </button>
-              ) : (
-                <button disabled className="w-full bg-surface-container-highest text-on-surface-variant py-4 rounded-full font-bold text-sm uppercase tracking-widest mb-4 cursor-not-allowed">
-                  Expedition Completed
-                </button>
-              )}
-              
-              <p className="text-center text-xs text-on-surface-variant mt-4">
-                No payment required to hold reservation.
-              </p>
-            </div>
-          </div>
+          <BookingSidebar adventure={adventure} />
 
         </div>
       </main>

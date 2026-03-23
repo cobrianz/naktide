@@ -1,45 +1,51 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 const SLIDES = [
   {
     image: "https://images.pexels.com/photos/247376/pexels-photo-247376.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    titleLine1: "Adventure",
-    titleLine2: "Awaits",
-    description: "Move beyond the grid. Experience the wild through a curated, editorial lens. Our explorations are designed for the high-end explorer."
+    date: "Oct 12, 2024",
+    category: "NakTide Safari",
+    title: "The Serengeti Crossing",
+    id: "serengeti-crossing-2024",
   },
   {
     image: "https://images.pexels.com/photos/3992066/pexels-photo-3992066.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    titleLine1: "The Great",
-    titleLine2: "Migration",
-    description: "Follow the endless herds across the Serengeti. An untamed spectacle of nature in its rawest form."
+    date: "Aug 20, 2023",
+    category: "Aerial Expedition",
+    title: "The Great Migration Aerial Safari",
+    id: "migration-aerial-2023",
   },
   {
     image: "https://images.pexels.com/photos/1049500/pexels-photo-1049500.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    titleLine1: "Into the",
-    titleLine2: "Wild",
-    description: "Experience the heartbeat of Africa up close. Exclusive access to untouched reserves away from the crowds."
+    date: "Dec 20, 2024",
+    category: "Photography Safari",
+    title: "Okavango Delta Photo-Op",
+    id: "okavango-delta-2024",
   },
   {
     image: "https://images.pexels.com/photos/609749/pexels-photo-609749.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    titleLine1: "Timeless",
-    titleLine2: "Giants",
-    description: "Walk alongside majestic elephants. Observe complex matriarchal societies shifting across the ancient landscape."
+    date: "Jan 15, 2024",
+    category: "Photography",
+    title: "Skeleton Coast & Dunes",
+    id: "skeleton-coast-2024",
   },
   {
     image: "https://images.pexels.com/photos/3992516/pexels-photo-3992516.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    titleLine1: "Golden",
-    titleLine2: "Horizons",
-    description: "Chase the sunset where the earth meets the sky. Unforgettable evenings beneath the vast African canopy."
+    date: "Nov 05, 2024",
+    category: "Trekking",
+    title: "Gorillas in the Mist",
+    id: "gorillas-mist-2024",
   },
   {
     image: "https://images.pexels.com/photos/33231637/pexels-photo-33231637.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    titleLine1: "Conservation",
-    titleLine2: "First",
-    description: "Every journey directly funds anti-poaching units. Travel responsibly and leave a vital, lasting impact."
-  }
+    date: "Oct 10, 2023",
+    category: "Forest Trek",
+    title: "Bwindi Forest Trek",
+    id: "bwindi-trek-2023",
+  },
 ];
 
 export default function Hero() {
@@ -48,86 +54,92 @@ export default function Hero() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
-    }, 6000); // Crossfade every 6 seconds
+    }, 6000);
     return () => clearInterval(timer);
   }, []);
 
+  const slide = SLIDES[currentIndex];
+
   return (
-    <header className="relative w-full h-[90vh] min-h-[700px] flex overflow-hidden">
-      {/* Background Images Crossfade */}
-      <div className="absolute inset-0 z-0 bg-black">
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={currentIndex}
-            src={SLIDES[currentIndex].image}
-            alt="Safari Landscape"
-            className="absolute inset-0 w-full h-full object-cover"
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-          />
-        </AnimatePresence>
-        
-        {/* Soft dark gradient so text is legible but images remain bright */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-      </div>
+    <header className="relative w-full h-screen overflow-hidden bg-black">
+      {/* Full-screen crossfading background images */}
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={currentIndex}
+          src={slide.image}
+          alt={slide.title}
+          className="absolute inset-0 w-full h-full object-cover"
+          initial={{ opacity: 0, scale: 1.04 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.8, ease: "easeInOut" }}
+        />
+      </AnimatePresence>
 
-      {/* Content wrapper */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 w-full flex flex-col justify-between h-full pt-20 pb-12">
-        
-        {/* Top/Left Minimalistic Text */}
-        <div className="mt-16 sm:mt-24 max-w-xl text-white">
-          <motion.span 
-            className="uppercase tracking-[0.3em] font-bold text-xs mb-8 block text-primary-fixed"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            Editorial Expedition No. 14
-          </motion.span>
-          
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div
-              key={currentIndex}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              <h1 className="text-6xl sm:text-7xl font-black font-headline leading-[0.9] tracking-tighter mb-8">
-                {SLIDES[currentIndex].titleLine1}<br />
-                {SLIDES[currentIndex].titleLine2}
-              </h1>
-              <p className="text-lg sm:text-xl font-body leading-relaxed max-w-sm text-gray-200 border-l-2 border-primary-fixed pl-6 py-2">
-                {SLIDES[currentIndex].description}
-              </p>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
+      {/* Very light vignette on the bottom only — keeps images bright */}
+      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-10" />
 
-      {/* Absolute Bottom Right CTA */}
-      <div className="absolute font-body bottom-16 right-16 z-20 flex flex-col sm:flex-row gap-4">
+      {/* Bottom-left text block — like the reference photo */}
+      <div className="absolute bottom-16 left-10 z-20 max-w-xl">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}
-            className="flex flex-col sm:flex-row gap-4"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
           >
-            <button className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-3 rounded-full font-bold text-sm tracking-wide hover:bg-white/20 transition-colors">
-              Our Story
-            </button>
-            <button className="bg-primary hover:bg-[#ad2c00] text-white px-8 py-3 rounded-full font-bold text-sm tracking-wide transition-colors shadow-none">
-              Browse Adventures
-            </button>
+            {/* Date / Category line */}
+            <p className="text-white/70 text-sm font-medium mb-3 tracking-wide">
+              {slide.date}
+              <span className="mx-3 text-white/30">/</span>
+              <span className="text-white/90 font-semibold">{slide.category}</span>
+            </p>
+
+            {/* Big Title */}
+            <h1 className="font-headline font-black text-white text-5xl md:text-7xl leading-[1] tracking-tighter mb-6">
+              {slide.title}
+            </h1>
+
+            {/* Read More Link — styled exactly like reference */}
+            <Link
+              href={`/adventures/${slide.id}`}
+              className="text-white text-sm font-semibold tracking-widest uppercase border-b border-white/40 pb-0.5 hover:border-primary-fixed hover:text-primary-fixed transition-colors inline-flex items-center gap-2"
+            >
+              Read More
+              <span className="text-base">→</span>
+            </Link>
           </motion.div>
         </AnimatePresence>
       </div>
 
+      {/* Slide indicator dots — bottom right */}
+      <div className="absolute bottom-16 right-10 z-20 flex flex-col items-center gap-2">
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentIndex(i)}
+            className={`w-1 rounded-full transition-all duration-500 ${
+              i === currentIndex ? "h-8 bg-white" : "h-2 bg-white/30 hover:bg-white/60"
+            }`}
+            aria-label={`Go to slide ${i + 1}`}
+          />
+        ))}
+      </div>
+
+      {/* CTAs — absolute center-right */}
+      <div className="absolute bottom-16 right-20 z-20 hidden md:flex flex-col gap-3 mr-8">
+        <Link href="/explore">
+          <button className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-7 py-3 rounded-full font-bold text-xs tracking-widest uppercase hover:bg-white/20 transition-colors">
+            Browse Adventures
+          </button>
+        </Link>
+        <Link href="/gallery">
+          <button className="text-white/60 hover:text-white text-xs tracking-widest uppercase font-bold transition-colors text-center">
+            View Gallery →
+          </button>
+        </Link>
+      </div>
     </header>
   );
 }

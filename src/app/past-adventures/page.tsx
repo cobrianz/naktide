@@ -180,9 +180,19 @@ export default async function PastAdventuresPage() {
           </section>
         </div>
         
-        {/* Extra Sections below the grid */}
-        <FeaturesSection />
-        <EditorialSection />
+        {/* Archival Statistics Section */}
+        <section className="py-24 bg-surface-container-highest px-6 mt-12 rounded-t-[3rem]">
+          <div className="max-w-7xl mx-auto text-center border-t border-b border-outline-variant/30 py-16">
+            <span className="text-secondary font-bold uppercase tracking-widest text-xs mb-4 block">Our Legacy</span>
+            <h2 className="text-4xl font-headline font-black mb-16 text-on-surface">By The Numbers</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
+              <div><div className="text-5xl md:text-7xl font-black text-primary mb-4 drop-shadow-sm">120+</div><div className="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant">Expeditions</div></div>
+              <div><div className="text-5xl md:text-7xl font-black text-primary mb-4 drop-shadow-sm">15</div><div className="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant">Countries</div></div>
+              <div><div className="text-5xl md:text-7xl font-black text-primary mb-4 drop-shadow-sm">10k</div><div className="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant">Encounters</div></div>
+              <div><div className="text-5xl md:text-7xl font-black text-primary mb-4 drop-shadow-sm">100%</div><div className="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant">Safe Returns</div></div>
+            </div>
+          </div>
+        </section>
       </main>
       
       <Footer />
