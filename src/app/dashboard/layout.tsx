@@ -3,6 +3,19 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import Modal from "@/components/dashboard/Modal";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -23,7 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="bg-background text-on-background min-h-screen flex selection:bg-primary/10 overflow-x-hidden font-jost">
       {/* SideNavBar Component */}
       <aside 
-        className={`hidden lg:flex flex-col p-6 gap-2 bg-surface-container-low h-screen border-r border-outline-variant/5 fixed left-0 top-0 overflow-y-auto z-50 shadow-none transition-all duration-500 ease-in-out ${
+        className={`hidden lg:flex flex-col p-6 gap-2 bg-surface-container-low h-screen border-r border-outline-variant/10 fixed left-0 top-0 overflow-y-auto z-50 transition-all duration-500 ease-in-out ${
           isCollapsed ? "w-24" : "w-64"
         }`}
       >
@@ -44,14 +57,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
         </div>
 
-        <div className={`flex items-center gap-4 px-2 mb-10 pb-6 border-b border-outline-variant/10 transition-all ${isCollapsed ? "justify-center border-none" : ""}`}>
-          <div className="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden border-2 border-primary/20 p-0.5 shrink-0 transition-all">
-            <img
-              className="w-full h-full rounded-full object-cover"
-              alt="Explorer Profile"
-              src="https://i.pravatar.cc/150?u=julian"
-            />
-          </div>
+        <div className={`flex items-center gap-4 px-2 mb-10 pb-6 transition-all ${isCollapsed ? "justify-center" : ""}`}>
+          <Avatar className="w-12 h-12 border border-outline-variant/20">
+            <AvatarImage src="https://i.pravatar.cc/150?u=julian" alt="Explorer Profile" />
+            <AvatarFallback>JA</AvatarFallback>
+          </Avatar>
           {!isCollapsed && (
             <motion.div 
               initial={{ opacity: 0, x: -10 }}
@@ -65,6 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </motion.div>
           )}
         </div>
+        <Separator className="mb-8 opacity-40" />
 
         <nav className="flex flex-col gap-1.5 overflow-x-hidden">
           {navLinks.map((link) => {
@@ -75,7 +86,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 href={link.href}
                 className={`group rounded-xl font-headline font-bold text-sm flex items-center gap-4 py-3 transition-all duration-300 ${isCollapsed ? "px-0 justify-center h-12 w-12 mx-auto" : "px-4"} ${
                   isActive
-                    ? "bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]"
+                    ? "bg-primary text-white scale-[1.02]"
                     : "text-on-surface-variant hover:bg-surface-container-high"
                 }`}
                 title={isCollapsed ? link.label : ""}
@@ -100,13 +111,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         <div className={`mt-8 transition-all duration-500 ${isCollapsed ? "opacity-0 invisible h-0" : "opacity-100"}`}>
-           <button 
+           <Button 
              onClick={() => setIsBookingModalOpen(true)}
-             className="w-full bg-gradient-to-br from-primary to-primary-container text-white py-4 rounded-xl font-headline font-bold text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+             className="w-full h-auto bg-gradient-to-br from-primary to-primary-container text-white py-4 rounded-xl font-headline font-bold text-xs uppercase tracking-widest hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-none border-none"
            >
              <span className="material-symbols-outlined text-sm">add</span>
              Book New Safari
-           </button>
+           </Button>
         </div>
 
         <div className="mt-auto pt-6 flex flex-col gap-4">
@@ -128,18 +139,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
              <span className="text-xl font-black text-primary uppercase tracking-tighter italic">NakTide</span>
           </Link>
           <div className="flex items-center gap-4">
-            <button 
+            <Button 
+              variant="default"
+              size="icon"
               onClick={() => setIsBookingModalOpen(true)}
-              className="p-2 bg-primary text-white rounded-xl shadow-lg shadow-primary/20"
+              className="rounded-xl"
             >
               <span className="material-symbols-outlined text-xl">add</span>
-            </button>
-            <button 
+            </Button>
+            <Button 
+              variant="ghost"
+              size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 bg-surface-container-high rounded-xl text-primary"
+              className="text-primary rounded-xl"
             >
               <span className="material-symbols-outlined">{isMobileMenuOpen ? "close" : "menu"}</span>
-            </button>
+            </Button>
           </div>
         </header>
 
@@ -170,48 +185,56 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
            </motion.div>
         </main>
 
-        {/* Modal for Booking */}
-        <Modal 
-          isOpen={isBookingModalOpen} 
-          onClose={() => setIsBookingModalOpen(false)} 
-          title="Plan New Expedition"
-        >
-          <div className="space-y-8">
-            <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10">
-               <p className="text-sm text-on-surface-variant font-medium leading-relaxed">
-                 Where would you like to explore next? Select your destination and preferred timeline.
-               </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <div className="space-y-2">
-                 <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Destination</label>
-                 <select className="w-full bg-surface-container-low border-2 border-outline-variant/20 rounded-xl px-4 py-3.5 focus:border-primary focus:ring-0 transition-all font-bold">
+        {/* shadcn Dialog for Booking */}
+        <Dialog open={isBookingModalOpen} onOpenChange={setIsBookingModalOpen}>
+          <DialogContent className="sm:max-w-2xl bg-surface-container-lowest border border-outline-variant/10 shadow-none font-jost">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black font-headline text-on-background">Plan New Expedition</DialogTitle>
+              <DialogDescription className="text-on-surface-variant font-medium text-base">
+                 Tell us where you imagine your next adventure.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6 py-4">
+              <div className="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/5">
+                <p className="text-sm text-on-surface-variant font-medium leading-relaxed italic">
+                  Where would you like to explore next? Select your destination and preferred timeline.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Destination</label>
+                  <select className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-2 text-sm font-bold focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50">
                     <option>Serengeti, Tanzania</option>
                     <option>Maasai Mara, Kenya</option>
                     <option>Okavango Delta, Botswana</option>
                     <option>Bwindi Forest, Uganda</option>
-                 </select>
-               </div>
-               <div className="space-y-2">
-                 <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Timeline</label>
-                 <input type="date" className="w-full bg-surface-container-low border-2 border-outline-variant/20 rounded-xl px-4 py-3.5 focus:border-primary focus:ring-0 transition-all font-bold" />
-               </div>
-            </div>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Timeline</label>
+                  <Input type="date" className="h-12 bg-surface-container-low border-outline-variant/20 rounded-xl font-bold" />
+                </div>
+              </div>
 
-            <div className="space-y-2">
-               <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Special Requirements</label>
-               <textarea 
-                 placeholder="Dietary preferences, photography gear needs, etc."
-                 className="w-full bg-surface-container-low border-2 border-outline-variant/20 rounded-xl px-4 py-3.5 focus:border-primary focus:ring-0 transition-all font-medium h-32"
-               ></textarea>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Special Requirements</label>
+                <Textarea 
+                  placeholder="Dietary preferences, photography gear needs, etc."
+                  className="bg-surface-container-low border-outline-variant/20 rounded-xl font-medium h-32 resize-none"
+                />
+              </div>
             </div>
-
-            <button className="w-full bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
-              Initiate Inquiry
-            </button>
-          </div>
-        </Modal>
+            <DialogFooter className="sm:justify-start">
+              <Button 
+                onClick={() => setIsBookingModalOpen(false)}
+                className="w-full bg-primary text-white py-6 rounded-2xl font-black uppercase tracking-widest text-xs shadow-none hover:scale-[1.01] transition-all"
+              >
+                Initiate Inquiry
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Fullscreen Style Footer */}
         <footer className="footer-accent py-8 px-6 lg:px-12 border-t border-outline-variant/5 bg-surface-container-lowest/30">
@@ -243,7 +266,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="bg-white h-full w-4/5 p-6 shadow-2xl"
+              className="bg-white h-full w-4/5 p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col h-full">
