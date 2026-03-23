@@ -9,6 +9,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const navLinks = [
     { label: "Overview", href: "/dashboard", icon: "dashboard" },
@@ -19,29 +20,50 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="bg-background text-on-background min-h-screen flex selection:bg-primary/10 overflow-x-hidden">
+    <div className="bg-background text-on-background min-h-screen flex selection:bg-primary/10 overflow-x-hidden font-jost">
       {/* SideNavBar Component */}
-      <aside className="hidden lg:flex flex-col p-6 gap-2 bg-surface-container-low h-screen w-64 border-r border-outline-variant/5 fixed left-0 top-0 overflow-y-auto z-50 shadow-none">
-        <div className="mb-10 px-2 transition-transform hover:scale-105">
-          <Link href="/">
-            <span className="text-2xl font-black text-primary uppercase tracking-tighter italic">NakTide</span>
-          </Link>
+      <aside 
+        className={`hidden lg:flex flex-col p-6 gap-2 bg-surface-container-low h-screen border-r border-outline-variant/5 fixed left-0 top-0 overflow-y-auto z-50 shadow-none transition-all duration-500 ease-in-out ${
+          isCollapsed ? "w-24" : "w-64"
+        }`}
+      >
+        <div className={`mb-10 px-2 flex items-center justify-between transition-all duration-500 ${isCollapsed ? "justify-center" : ""}`}>
+          {!isCollapsed && (
+            <Link href="/">
+              <span className="text-2xl font-black text-primary uppercase tracking-tighter italic">NakTide</span>
+            </Link>
+          )}
+          <button 
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className={`p-2 hover:bg-surface-container-high rounded-xl text-on-surface-variant transition-all ${isCollapsed ? "mx-auto" : ""}`}
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            <span className="material-symbols-outlined text-xl">
+              {isCollapsed ? "side_navigation_one" : "keyboard_double_arrow_left"}
+            </span>
+          </button>
         </div>
 
-        <div className="flex items-center gap-4 px-2 mb-10 pb-6 border-b border-outline-variant/10">
-          <div className="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden border-2 border-primary/20 p-0.5">
+        <div className={`flex items-center gap-4 px-2 mb-10 pb-6 border-b border-outline-variant/10 transition-all ${isCollapsed ? "justify-center border-none" : ""}`}>
+          <div className="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden border-2 border-primary/20 p-0.5 shrink-0 transition-all">
             <img
               className="w-full h-full rounded-full object-cover"
               alt="Explorer Profile"
               src="https://i.pravatar.cc/150?u=julian"
             />
           </div>
-          <div className="min-w-0">
-            <p className="font-headline font-bold text-sm text-on-surface truncate">Julian A.</p>
-            <p className="text-[10px] uppercase tracking-widest text-primary font-black">
-              Gold Member
-            </p>
-          </div>
+          {!isCollapsed && (
+            <motion.div 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="min-w-0"
+            >
+              <p className="font-headline font-bold text-sm text-on-surface truncate">Julian A.</p>
+              <p className="text-[10px] uppercase tracking-widest text-primary font-black">
+                Gold Member
+              </p>
+            </motion.div>
+          )}
         </div>
 
         <nav className="flex flex-col gap-1.5 overflow-x-hidden">
@@ -51,11 +73,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Link
                 key={link.label}
                 href={link.href}
-                className={`group rounded-xl font-headline font-bold text-sm flex items-center gap-4 px-4 py-3 transition-all duration-300 ${
+                className={`group rounded-xl font-headline font-bold text-sm flex items-center gap-4 py-3 transition-all duration-300 ${isCollapsed ? "px-0 justify-center h-12 w-12 mx-auto" : "px-4"} ${
                   isActive
                     ? "bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]"
                     : "text-on-surface-variant hover:bg-surface-container-high"
                 }`}
+                title={isCollapsed ? link.label : ""}
               >
                 <span 
                   className={`material-symbols-outlined text-lg transition-transform group-hover:scale-110 ${isActive ? "text-white" : "text-primary/70"}`}
@@ -63,13 +86,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 >
                   {link.icon}
                 </span>
-                {link.label}
+                {!isCollapsed && (
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    {link.label}
+                  </motion.span>
+                )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="mt-8">
+        <div className={`mt-8 transition-all duration-500 ${isCollapsed ? "opacity-0 invisible h-0" : "opacity-100"}`}>
            <button 
              onClick={() => setIsBookingModalOpen(true)}
              className="w-full bg-gradient-to-br from-primary to-primary-container text-white py-4 rounded-xl font-headline font-bold text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
@@ -79,15 +109,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
            </button>
         </div>
 
-        <div className="mt-auto pt-6">
-          <button className="w-full bg-surface-container-highest text-on-surface py-3 rounded-xl font-headline font-bold text-[10px] uppercase tracking-widest hover:bg-surface-dim transition-all active:scale-95 border border-outline-variant/10">
-            Log Out
+        <div className="mt-auto pt-6 flex flex-col gap-4">
+          <button 
+            className={`w-full bg-surface-container-highest text-on-surface py-3 rounded-xl font-headline font-bold uppercase tracking-widest hover:bg-surface-dim transition-all active:scale-95 border border-outline-variant/10 flex items-center justify-center gap-4 ${isCollapsed ? "px-0 h-12 w-12 mx-auto" : "text-[10px]"}`}
+            title={isCollapsed ? "Log Out" : ""}
+          >
+            <span className="material-symbols-outlined text-sm">logout</span>
+            {!isCollapsed && "Log Out"}
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-500 ease-in-out ${isCollapsed ? "lg:ml-24" : "lg:ml-64"}`}>
         {/* Mobile Header Accent */}
         <header className="lg:hidden flex justify-between items-center px-6 py-4 bg-white/80 backdrop-blur-md border-b border-outline-variant/10 sticky top-0 z-40">
           <Link href="/">

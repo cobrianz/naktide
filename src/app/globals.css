@@ -101,9 +101,10 @@
   --color-secondary: #2a6b2c;
   --color-background: #fafaf5;
 
-  --font-headline: 'Epilogue', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  --font-label: 'Inter', sans-serif;
+  --font-jost: 'Jost', sans-serif;
+  --font-headline: 'Jost', sans-serif;
+  --font-body: 'Jost', sans-serif;
+  --font-label: 'Jost', sans-serif;
 }
 
 :root {
