@@ -1,201 +1,191 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription 
+} from "@/components/ui/card";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { generateReceipt } from "@/utils/receiptGenerator";
 
 export default function DashboardPage() {
+  const handleDownload = (item: any) => {
+    const priceValue = parseInt(item.price.replace(/[^0-9]/g, "")) || 0;
+    
+    generateReceipt({
+      receiptCode: `RCT-2024-${Math.floor(Math.random() * 9000) + 1000}`,
+      dateReceipt: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+      customer: {
+        name: "Julian Alexander Vance",
+        email: "j.vance@naktide.com",
+        phone: "+1 (555) 012-8843",
+        payment: "M-Pesa (FULLY PAID)",
+        datetime: new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + " EAT"
+      },
+      items: [
+        { desc: item.name, amount: priceValue }
+      ],
+      totalPaid: priceValue,
+      bookingRef: `NKT-SAFARI-${Math.floor(Math.random() * 9000) + 1000}`,
+      travelDates: item.date,
+      extras: "Elite Voyager Package  •  Private Guide",
+      qrLink: "https://naktidetours.com/verify/booking-v1"
+    });
+  };
+
+  const recentExpeditions = [
+    { id: "SV-9821", name: "Serengeti Sunset Trail", date: "Oct 24, 2024", price: "Ksh 161,200", status: "Confirmed", img: "https://images.pexels.com/photos/1054668/pexels-photo-1054668.jpeg" },
+    { id: "SV-8742", name: "Ngorongoro Crater Trek", date: "Nov 12, 2024", price: "Ksh 448,500", status: "Pending", img: "https://images.pexels.com/photos/33231637/pexels-photo-33231637.jpeg" },
+  ];
+
   return (
-    <div className="flex flex-col gap-10">
-      {/* Header Section */}
-      <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-6">
-        <div>
-          <span className="text-primary font-headline font-black text-[10px] tracking-[0.3em] uppercase mb-3 block opacity-80">
-            Explorer Portal
-          </span>
-          <h1 className="text-4xl lg:text-6xl font-black text-on-background tracking-tighter font-headline leading-none">Jambo, Julian!</h1>
-          <p className="text-on-surface-variant mt-4 font-medium text-lg lg:text-xl max-w-xl leading-relaxed">Your portal to the world's most intentional wilderness experiences.</p>
-        </div>
-        <div className="flex items-center gap-4 bg-surface-container-low px-6 py-3 rounded-2xl text-on-surface-variant text-sm font-bold border border-outline-variant/5">
-          <span className="material-symbols-outlined text-primary">calendar_month</span>
-          <span>June 12, 2024</span>
-          <span className="w-1 h-1 bg-outline-variant/30 rounded-full"></span>
-          <span>Serengeti, TZ</span>
-        </div>
-      </header>
-
-      {/* Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        {/* Profile Summary */}
-        <div className="md:col-span-8 bg-surface-container-lowest p-8 lg:p-12 rounded-3xl border border-outline-variant/10 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 group-hover:scale-110 transition-transform duration-1000"></div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-10 gap-x-12 relative z-10">
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-black mb-2 opacity-60">
-                Explorer
-              </p>
-              <p className="font-headline font-bold text-xl text-on-surface">Julian Alexander Vance</p>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-black mb-2 opacity-60">
-                Account ID
-              </p>
-              <p className="font-headline font-bold text-xl text-on-surface tracking-tight">j.vance@naktide.com</p>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-black mb-2 opacity-60">
-                Primary Contact
-              </p>
-              <p className="font-headline font-bold text-xl text-on-surface">+1 (555) 012-8843</p>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-black mb-2 opacity-60">
-                Voyager Since
-              </p>
-              <p className="font-headline font-bold text-xl text-on-surface">October 2021</p>
-            </div>
+    <div className="flex flex-col gap-16 pb-20">
+      {/* Immersive Welcome Hero */}
+      <section className="flex flex-col lg:flex-row lg:items-end justify-between gap-12">
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+             <span className="w-12 h-[2px] bg-primary/30"></span>
+             <span className="text-[11px] font-black uppercase tracking-[0.4em] text-primary/60">Explorer Terminal Access</span>
           </div>
+          <h1 className="text-6xl lg:text-9xl font-black text-[#1a1c19] tracking-tighter font-headline leading-[0.85] italic uppercase">
+            Jambo,<br />
+            <span className="text-primary italic">Julian!</span>
+          </h1>
+          <p className="text-[#5a413a] font-medium text-lg lg:text-xl max-w-2xl leading-relaxed opacity-70 border-l-2 border-primary/20 pl-8 mt-8">
+            Your voyage across the Savannah is being archived with precision. Every coordinate, encounter, and moment is secured within your legacy.
+          </p>
         </div>
-
-        {/* Points Balance */}
-        <div className="md:col-span-4 bg-primary text-white p-8 lg:p-12 rounded-3xl flex flex-col justify-between relative overflow-hidden">
-           <div className="absolute -bottom-8 -right-8 opacity-10">
-             <span className="material-symbols-outlined text-[12rem]">stars</span>
-           </div>
-          <div className="relative z-10">
-            <span className="material-symbols-outlined text-4xl lg:text-5xl mb-6" style={{ fontVariationSettings: "'FILL' 1" }}>
-              stars
-            </span>
-            <p className="text-[10px] uppercase tracking-widest opacity-80 font-black mb-1">Savannah Gold Points</p>
-            <p className="text-4xl lg:text-6xl font-black font-headline tracking-tighter">14,250</p>
+        
+        <div className="flex gap-4">
+          <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-8 rounded-[2.5rem] shadow-sm flex flex-col items-center justify-center min-w-[150px]">
+            <span className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-2">Expeditions</span>
+            <span className="text-4xl font-black font-headline italic">14</span>
           </div>
-          <div className="pt-6 border-t border-white/20 relative z-10 mt-8">
-            <p className="text-xs opacity-90 leading-relaxed font-medium">
-              You're only <span className="font-bold underline">750 points</span> away from your next private safari reward.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Adventure History */}
-      <section className="mt-4">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-             <h2 className="text-3xl font-black tracking-tighter text-on-surface">Recent Expeditions</h2>
-             <p className="text-sm text-on-surface-variant font-medium mt-1">Your latest registered safari activity.</p>
-          </div>
-          <Link href="/dashboard/bookings" className="text-primary text-xs font-black uppercase tracking-widest flex items-center gap-2 group transition-all">
-            See History <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-          </Link>
-        </div>
-        <div className="bg-surface-container-lowest rounded-3xl overflow-hidden border border-outline-variant/10 shadow-none">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[700px]">
-              <thead>
-                <tr className="bg-surface-container-low/30">
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest text-on-surface-variant font-black">
-                    Adventure Designation
-                  </th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest text-on-surface-variant font-black">
-                    Timeline
-                  </th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest text-on-surface-variant font-black text-center">
-                    Party Size
-                  </th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest text-on-surface-variant font-black text-right">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/5">
-                {[
-                  {
-                    name: "Maasai Mara Sky Expedition",
-                    date: "Aug 14 - 21, 2024",
-                    attendees: "2 Adults",
-                    price: "Ksh 630,500",
-                    status: "Confirmed",
-                    img: "https://images.pexels.com/photos/1054668/pexels-photo-1054668.jpeg",
-                  },
-                  {
-                    name: "Gorilla Trekking Bwindi",
-                    date: "Jan 05 - 12, 2024",
-                    attendees: "1 Adult",
-                    price: "Ksh 416,000",
-                    status: "Completed",
-                    img: "https://images.pexels.com/photos/33231637/pexels-photo-33231637.jpeg",
-                  },
-                ].map((item, idx) => (
-                  <tr key={idx} className="hover:bg-surface-container/20 transition-colors group">
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl overflow-hidden border border-outline-variant/10">
-                          <img className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" src={item.img} alt={item.name} />
-                        </div>
-                        <div>
-                           <span className="font-headline font-bold text-base text-on-surface">{item.name}</span>
-                           <div className="mt-1">
-                             <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
-                               item.status === "Confirmed" ? "bg-secondary-container text-on-secondary-container" : "bg-surface-container-high text-on-surface-variant"
-                             }`}>
-                               {item.status}
-                             </span>
-                           </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6 text-sm font-bold text-on-surface-variant/80 whitespace-nowrap">{item.date}</td>
-                    <td className="px-8 py-6 text-sm font-bold text-on-surface-variant text-center">{item.attendees}</td>
-                    <td className="px-8 py-6 text-right">
-                      <button className="text-on-surface-variant hover:text-primary p-2 rounded-xl transition-colors">
-                        <span className="material-symbols-outlined text-xl">open_in_new</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-8 rounded-[2.5rem] shadow-sm flex flex-col items-center justify-center min-w-[150px]">
+            <span className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-2">Rewards</span>
+            <span className="text-4xl font-black font-headline italic">Elite</span>
           </div>
         </div>
       </section>
 
-      {/* Activity Logs & Insights */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 mt-6 mb-12">
-        <div className="space-y-6">
-           <h3 className="text-xl font-black tracking-tight text-on-surface">Experience Points Log</h3>
-           <div className="space-y-3">
-              {[
-                { label: "Wildlife Photography Bonus", date: "June 10", val: "+250", pos: true },
-                { label: "Safari Booking Reward", date: "May 28", val: "+1,200", pos: true }
-              ].map((log, i) => (
-                <div key={i} className="flex justify-between items-center p-5 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl group hover:border-primary/20 transition-colors">
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
-                      <span className="material-symbols-outlined text-sm">trending_up</span>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-on-surface truncate">{log.label}</p>
-                      <p className="text-[10px] text-on-surface-variant/60 font-black uppercase tracking-widest">{log.date}</p>
-                    </div>
-                  </div>
-                  <span className="font-headline font-black text-secondary shrink-0 ml-4">{log.val}</span>
+      {/* Advanced Bento Terminal */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        {/* Points Display - The Gold Reserve */}
+        <Card className="xl:col-span-4 bg-primary text-white border-none rounded-[3rem] p-12 overflow-hidden relative group min-h-[450px] flex flex-col shadow-2xl shadow-primary/20">
+          <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-all duration-1000 rotate-12">
+             <span className="material-symbols-outlined text-[10rem]">stars</span>
+          </div>
+          <div className="relative z-10">
+            <Badge className="bg-white/20 hover:bg-white/30 text-white border-none px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest pointer-events-none mb-10">
+              Savannah Gold Balance
+            </Badge>
+            <h2 className="text-7xl lg:text-8xl font-black font-headline tracking-tighter leading-none mb-2">14,250</h2>
+            <p className="text-white/60 text-xs font-bold uppercase tracking-widest">Universal Prestige Credits</p>
+          </div>
+          <div className="mt-auto relative z-10 pt-10 border-t border-white/10">
+            <p className="text-sm font-medium opacity-80 leading-relaxed mb-8">
+               Your prestige allows you to unlock a <span className="underline underline-offset-4 font-black">Private Nocturnal Photo Safari</span> in the Serengeti. 
+            </p>
+            <Button className="w-full bg-white text-primary rounded-[2rem] h-16 font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-[1.02] transition-all">
+              Redeem Rewards
+            </Button>
+          </div>
+        </Card>
+
+        {/* Action & Stats Cluster */}
+        <div className="xl:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Card className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[3rem] p-10 flex flex-col justify-between group hover:bg-white/60 transition-all duration-500">
+             <div className="flex justify-between items-start">
+                <div className="w-16 h-16 rounded-[1.5rem] bg-secondary/10 flex items-center justify-center text-secondary">
+                  <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>map</span>
                 </div>
-              ))}
-           </div>
-        </div>
-        
-        <div className="bg-inverse-surface text-inverse-on-surface p-8 lg:p-10 rounded-3xl relative overflow-hidden group">
-           <div className="absolute top-0 right-0 w-full h-full opacity-10 grayscale group-hover:scale-110 transition-transform duration-1000">
-             <img src="https://images.pexels.com/photos/1054668/pexels-photo-1054668.jpeg" className="w-full h-full object-cover" />
-           </div>
-           <div className="relative z-10 flex flex-col h-full justify-between gap-12">
-              <div>
-                <span className="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full mb-4 inline-block">Pro Voyager Tip</span>
-                <h4 className="text-2xl font-black font-headline leading-tight">Maximize your points this season in the Serengeti.</h4>
-                <p className="text-white/60 text-sm mt-4 leading-relaxed">Book a nocturnal photography safari during the new moon to earn double rewards and exclusive badge status.</p>
-              </div>
-              <button className="flex items-center gap-3 text-sm font-black uppercase tracking-widest text-primary hover:text-white transition-colors">
-                Explore Safaris <span className="material-symbols-outlined text-sm">arrow_forward</span>
-              </button>
-           </div>
+                <Button variant="ghost" size="icon" className="rounded-full bg-[#fafaf5] shadow-sm"><span className="material-symbols-outlined text-sm">north_east</span></Button>
+             </div>
+             <div>
+               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#5a413a]/40 mb-4">Voyager Progress</p>
+               <h3 className="text-4xl font-black italic tracking-tighter text-[#1a1c19]">Serengeti Node Active</h3>
+               <p className="text-xs font-bold text-secondary mt-4 flex items-center gap-2">
+                 <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" /> Finalizing itinerary for October Departure
+               </p>
+             </div>
+          </Card>
+
+          <Card className="bg-[#1a1c19] text-white border-none rounded-[3rem] p-10 flex flex-col justify-between overflow-hidden relative group">
+             <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/1054668/pexels-photo-1054668.jpeg')] bg-cover bg-center opacity-10 grayscale group-hover:scale-110 transition-transform duration-1000"></div>
+             <div className="relative z-10">
+               <div className="w-16 h-16 rounded-[1.5rem] bg-white/10 flex items-center justify-center text-primary">
+                 <span className="material-symbols-outlined text-2xl">auto_awesome</span>
+               </div>
+             </div>
+             <div className="relative z-10">
+               <h3 className="text-3xl font-black italic uppercase leading-tight tracking-tighter mb-4">New Moon<br />Photography</h3>
+               <p className="text-white/40 text-sm font-medium mb-8">Exclusive access to nocturnal wildlife sightings this season.</p>
+               <Button className="bg-primary hover:bg-primary/90 text-white rounded-2xl h-12 px-8 font-black uppercase tracking-widest text-[9px] shadow-lg shadow-primary/20">
+                 Apply for Permit
+               </Button>
+             </div>
+          </Card>
+
+          {/* Table Container - The Ledger */}
+          <Card className="md:col-span-2 bg-white/40 backdrop-blur-xl border border-white/60 rounded-[3rem] overflow-hidden shadow-none">
+            <div className="px-10 py-8 border-b border-white/60 flex justify-between items-center">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">Recent Expedition Logs</h4>
+              <Link href="/dashboard/bookings" className="text-[9px] font-black uppercase tracking-widest text-primary hover:underline underline-offset-4">Full Archive</Link>
+            </div>
+            <Table>
+              <TableHeader className="bg-white/20">
+                <TableRow className="hover:bg-transparent border-none">
+                  <TableHead className="px-10 py-6 text-[9px] font-black uppercase tracking-widest opacity-40">Designation</TableHead>
+                  <TableHead className="px-10 py-6 text-[9px] font-black uppercase tracking-widest opacity-40">Timeline</TableHead>
+                  <TableHead className="px-10 py-6 text-[9px] font-black uppercase tracking-widest opacity-40 text-right">Manifest</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentExpeditions.map((item, i) => (
+                  <TableRow key={i} className="hover:bg-white/40 transition-all border-white/20">
+                    <TableCell className="px-10 py-8">
+                       <div className="flex items-center gap-5">
+                          <Avatar className="w-12 h-12 rounded-[1rem] border border-white/60">
+                            <AvatarImage src={item.img} className="object-cover grayscale" />
+                            <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0">
+                            <p className="font-bold text-sm truncate">{item.name}</p>
+                            <p className="text-[9px] uppercase tracking-widest opacity-40 font-black">{item.id}</p>
+                          </div>
+                       </div>
+                    </TableCell>
+                    <TableCell className="px-10 py-8">
+                      <span className="text-xs font-bold opacity-60">{item.date}</span>
+                    </TableCell>
+                    <TableCell className="px-10 py-8 text-right">
+                      <Button 
+                        onClick={() => handleDownload(item)}
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-xl hover:bg-primary hover:text-white transition-all shadow-sm bg-white"
+                      >
+                        <span className="material-symbols-outlined text-sm">receipt_long</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
         </div>
       </div>
     </div>

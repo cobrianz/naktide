@@ -11,16 +11,13 @@ import {
   DialogDescription,
   DialogFooter
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import Modal from "@/components/dashboard/Modal";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -33,268 +30,157 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="bg-background text-on-background min-h-screen flex selection:bg-primary/10 overflow-x-hidden font-jost">
-      {/* SideNavBar Component */}
+    <div className="bg-[#fafaf5] text-[#1a1c19] min-h-screen flex selection:bg-primary/20 overflow-x-hidden font-jost relative">
+      {/* Background Aesthetic Layers */}
+      <div className="fixed inset-0 pointer-events-none opacity-40">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-[120px]"></div>
+      </div>
+
+      {/* Floating Glass Sidebar */}
       <aside 
-        className={`hidden lg:flex flex-col p-6 gap-2 bg-surface-container-low h-screen border-r border-outline-variant/10 fixed left-0 top-0 overflow-y-auto z-50 transition-all duration-500 ease-in-out ${
-          isCollapsed ? "w-24" : "w-64"
+        className={`hidden lg:flex flex-col p-8 gap-6 bg-white/40 backdrop-blur-2xl h-[calc(100vh-2rem)] border border-white/60 fixed left-4 top-4 rounded-[2.5rem] overflow-y-auto z-50 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] ${
+          isCollapsed ? "w-24" : "w-72"
         }`}
       >
-        <div className={`mb-10 px-2 flex items-center justify-between transition-all duration-500 ${isCollapsed ? "justify-center" : ""}`}>
+        <div className={`mb-12 px-2 flex items-center justify-between transition-all duration-500 ${isCollapsed ? "justify-center" : ""}`}>
           {!isCollapsed && (
-            <Link href="/">
-              <span className="text-2xl font-black text-primary uppercase tracking-tighter italic">NakTide</span>
+            <Link href="/" className="group">
+              <span className="text-3xl font-black text-primary uppercase tracking-tighter italic">
+                Nak<span className="text-[#5a413a]">Tide</span>
+              </span>
             </Link>
           )}
-          <button 
+          <Button 
+            variant="ghost" 
+            size="icon" 
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`p-2 hover:bg-surface-container-high rounded-xl text-on-surface-variant transition-all ${isCollapsed ? "mx-auto" : ""}`}
-            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            className="hover:bg-primary/5 rounded-full"
           >
             <span className="material-symbols-outlined text-xl">
               {isCollapsed ? "side_navigation_one" : "keyboard_double_arrow_left"}
             </span>
-          </button>
+          </Button>
         </div>
 
-        <div className={`flex items-center gap-4 px-2 mb-10 pb-6 transition-all ${isCollapsed ? "justify-center" : ""}`}>
-          <Avatar className="w-12 h-12 border border-outline-variant/20">
-            <AvatarImage src="https://i.pravatar.cc/150?u=julian" alt="Explorer Profile" />
+        {/* User Card */}
+        <div className={`flex items-center gap-4 p-4 rounded-3xl bg-white/40 border border-white/60 mb-6 ${isCollapsed ? "justify-center" : ""}`}>
+          <Avatar className="w-12 h-12 border-2 border-primary/10">
+            <AvatarImage src="https://i.pravatar.cc/150?u=julian" />
             <AvatarFallback>JA</AvatarFallback>
           </Avatar>
           {!isCollapsed && (
-            <motion.div 
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="min-w-0"
-            >
-              <p className="font-headline font-bold text-sm text-on-surface truncate">Julian A.</p>
-              <p className="text-[10px] uppercase tracking-widest text-primary font-black">
-                Gold Member
-              </p>
-            </motion.div>
+            <div className="min-w-0">
+              <p className="font-bold text-sm truncate">Julian Vance</p>
+              <p className="text-[9px] uppercase tracking-widest text-primary font-bold opacity-60">Elite Voyager</p>
+            </div>
           )}
         </div>
-        <Separator className="mb-8 opacity-40" />
 
-        <nav className="flex flex-col gap-1.5 overflow-x-hidden">
+        <nav className="flex flex-col gap-2">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.label}
                 href={link.href}
-                className={`group rounded-xl font-headline font-bold text-sm flex items-center gap-4 py-3 transition-all duration-300 ${isCollapsed ? "px-0 justify-center h-12 w-12 mx-auto" : "px-4"} ${
+                className={`group relative rounded-2xl font-bold text-sm flex items-center gap-4 py-4 transition-all duration-500 ${isCollapsed ? "px-0 justify-center h-14 w-14 mx-auto" : "px-6"} ${
                   isActive
-                    ? "bg-primary text-white scale-[1.02]"
-                    : "text-on-surface-variant hover:bg-surface-container-high"
+                    ? "text-primary bg-primary/5 shadow-sm"
+                    : "text-[#5a413a]/60 hover:bg-white/60 hover:text-primary"
                 }`}
-                title={isCollapsed ? link.label : ""}
               >
-                <span 
-                  className={`material-symbols-outlined text-lg transition-transform group-hover:scale-110 ${isActive ? "text-white" : "text-primary/70"}`}
-                  style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
-                >
+                {isActive && (
+                  <motion.div 
+                    layoutId="active-pill"
+                    className="absolute left-1 w-1 h-5 bg-primary rounded-full"
+                  />
+                )}
+                <span className={`material-symbols-outlined text-xl ${isActive ? "text-primary" : "opacity-60 group-hover:opacity-100"}`}>
                   {link.icon}
                 </span>
-                {!isCollapsed && (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
-                    {link.label}
-                  </motion.span>
-                )}
+                {!isCollapsed && <span>{link.label}</span>}
               </Link>
             );
           })}
         </nav>
 
-        <div className={`mt-8 transition-all duration-500 ${isCollapsed ? "opacity-0 invisible h-0" : "opacity-100"}`}>
-           <Button 
-             onClick={() => setIsBookingModalOpen(true)}
-             className="w-full h-auto bg-gradient-to-br from-primary to-primary-container text-white py-4 rounded-xl font-headline font-bold text-xs uppercase tracking-widest hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-none border-none"
-           >
-             <span className="material-symbols-outlined text-sm">add</span>
-             Book New Safari
-           </Button>
-        </div>
-
-        <div className="mt-auto pt-6 flex flex-col gap-4">
-          <button 
-            className={`w-full bg-surface-container-highest text-on-surface py-3 rounded-xl font-headline font-bold uppercase tracking-widest hover:bg-surface-dim transition-all active:scale-95 border border-outline-variant/10 flex items-center justify-center gap-4 ${isCollapsed ? "px-0 h-12 w-12 mx-auto" : "text-[10px]"}`}
-            title={isCollapsed ? "Log Out" : ""}
+        <div className="mt-auto">
+          <Button 
+            onClick={() => setIsBookingModalOpen(true)}
+            className="w-full bg-primary hover:bg-primary/90 text-white py-8 rounded-[2rem] font-black uppercase tracking-widest text-[9px] shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
           >
-            <span className="material-symbols-outlined text-sm">logout</span>
-            {!isCollapsed && "Log Out"}
-          </button>
+            <span className="material-symbols-outlined text-lg">add</span>
+            {!isCollapsed && "New Expedition"}
+          </Button>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-500 ease-in-out ${isCollapsed ? "lg:ml-24" : "lg:ml-64"}`}>
-        {/* Mobile Header Accent */}
-        <header className="lg:hidden flex justify-between items-center px-6 py-4 bg-white/80 backdrop-blur-md border-b border-outline-variant/10 sticky top-0 z-40">
-          <Link href="/">
-             <span className="text-xl font-black text-primary uppercase tracking-tighter italic">NakTide</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="default"
-              size="icon"
-              onClick={() => setIsBookingModalOpen(true)}
-              className="rounded-xl"
-            >
-              <span className="material-symbols-outlined text-xl">add</span>
+      {/* Main Content */}
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${isCollapsed ? "lg:ml-32" : "lg:ml-84"}`}>
+        <header className="px-12 py-10 flex justify-between items-center relative z-20">
+          <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.3em] opacity-30">
+            <Link href="/dashboard" className="hover:text-primary transition-colors">Explorer</Link>
+            <span>/</span>
+            <span className="text-[#1a1c19] opacity-100">{navLinks.find(l => l.href === pathname)?.label || "Portfolio"}</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <Button variant="ghost" size="icon" className="rounded-2xl bg-white/40 border border-white/60 hover:bg-primary/5">
+              <span className="material-symbols-outlined text-xl">notifications</span>
             </Button>
-            <Button 
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-primary rounded-xl"
-            >
-              <span className="material-symbols-outlined">{isMobileMenuOpen ? "close" : "menu"}</span>
-            </Button>
+            <div className="h-4 w-px bg-[#1a1c19]/10"></div>
+            <div className="text-right">
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Operational Status</p>
+              <p className="text-[10px] font-bold text-secondary uppercase tracking-widest">Systems Nominal</p>
+            </div>
           </div>
         </header>
 
-        {/* Desktop Top Nav / Breadcrumbs */}
-        <div className="hidden lg:flex items-center justify-between px-10 py-6">
-           <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant/40">
-             <Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
-             <span>/</span>
-             <span className="text-primary">{navLinks.find(l => l.href === pathname)?.label || "Overview"}</span>
-           </div>
-           <div className="flex items-center gap-4">
-              <button className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
-              <div className="h-4 w-px bg-outline-variant/20"></div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Voyager Journal</span>
-           </div>
-        </div>
-
-        {/* Content Canvas */}
-        <main className="flex-1 p-4 md:p-10 lg:pt-4 overflow-x-hidden">
-           <motion.div
-             key={pathname}
-             initial={{ opacity: 0, y: 10 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.4, ease: "easeOut" }}
-             className="h-full"
-           >
-             {children}
-           </motion.div>
+        <main className="flex-1 px-12 pb-12 relative z-20 overflow-x-hidden">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            {children}
+          </motion.div>
         </main>
-
-        {/* shadcn Dialog for Booking */}
-        <Dialog open={isBookingModalOpen} onOpenChange={setIsBookingModalOpen}>
-          <DialogContent className="sm:max-w-2xl bg-surface-container-lowest border border-outline-variant/10 shadow-none font-jost">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-black font-headline text-on-background">Plan New Expedition</DialogTitle>
-              <DialogDescription className="text-on-surface-variant font-medium text-base">
-                 Tell us where you imagine your next adventure.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-6 py-4">
-              <div className="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/5">
-                <p className="text-sm text-on-surface-variant font-medium leading-relaxed italic">
-                  Where would you like to explore next? Select your destination and preferred timeline.
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Destination</label>
-                  <select className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-2 text-sm font-bold focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50">
-                    <option>Serengeti, Tanzania</option>
-                    <option>Maasai Mara, Kenya</option>
-                    <option>Okavango Delta, Botswana</option>
-                    <option>Bwindi Forest, Uganda</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Timeline</label>
-                  <Input type="date" className="h-12 bg-surface-container-low border-outline-variant/20 rounded-xl font-bold" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Special Requirements</label>
-                <Textarea 
-                  placeholder="Dietary preferences, photography gear needs, etc."
-                  className="bg-surface-container-low border-outline-variant/20 rounded-xl font-medium h-32 resize-none"
-                />
-              </div>
-            </div>
-            <DialogFooter className="sm:justify-start">
-              <Button 
-                onClick={() => setIsBookingModalOpen(false)}
-                className="w-full bg-primary text-white py-6 rounded-2xl font-black uppercase tracking-widest text-xs shadow-none hover:scale-[1.01] transition-all"
-              >
-                Initiate Inquiry
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Fullscreen Style Footer */}
-        <footer className="footer-accent py-8 px-6 lg:px-12 border-t border-outline-variant/5 bg-surface-container-lowest/30">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant/40">
-              © 2024 NakTide Global • The Savannah Collection
-            </p>
-            <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">
-              <a href="#" className="hover:text-primary transition-colors">Safety</a>
-              <a href="#" className="hover:text-primary transition-colors">Journal</a>
-              <a href="#" className="hover:text-primary transition-colors">Support</a>
-            </div>
-          </div>
-        </footer>
       </div>
 
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-on-background/40 backdrop-blur-sm z-50 pt-20"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="bg-white h-full w-4/5 p-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex flex-col h-full">
-                <nav className="flex flex-col gap-4 mt-8">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.label}
-                      href={link.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center gap-4 text-xl font-headline font-bold p-4 rounded-xl ${
-                        pathname === link.href ? "bg-primary text-white" : "text-on-surface"
-                      }`}
-                    >
-                      <span className="material-symbols-outlined">{link.icon}</span>
-                      {link.label}
-                    </Link>
-                  ))}
-                </nav>
-                <div className="mt-auto pb-8">
-                   <button className="w-full bg-surface-container-high py-4 rounded-xl font-bold flex items-center justify-center gap-3">
-                     Log Out <span className="material-symbols-outlined">logout</span>
-                   </button>
-                </div>
+      {/* Booking Modal */}
+      <Dialog open={isBookingModalOpen} onOpenChange={setIsBookingModalOpen}>
+        <DialogContent className="sm:max-w-2xl bg-white/90 backdrop-blur-xl border-white/60 rounded-[3rem] shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black italic uppercase italic">Initiate New Inquiry</DialogTitle>
+            <DialogDescription className="text-[#5a413a]/60 font-medium">Define the coordinates for your next wilderness encounter.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-6">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-black tracking-widest opacity-40">Destination</label>
+                <select className="w-full bg-[#f4f4ef] border-none rounded-2xl h-12 px-4 text-sm font-bold">
+                  <option>Serengeti, Tanzania</option>
+                  <option>Okavango, Botswana</option>
+                </select>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-black tracking-widest opacity-40">Departure</label>
+                <Input type="date" className="h-12 bg-[#f4f4ef] border-none rounded-2xl" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-black tracking-widest opacity-40">Observations & Requirements</label>
+              <Textarea className="bg-[#f4f4ef] border-none rounded-2xl h-32 resize-none" placeholder="Photography gear, dietary focus, etc." />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button className="w-full bg-primary text-white h-14 rounded-2xl font-black uppercase tracking-widest text-[10px]" onClick={() => setIsBookingModalOpen(false)}>
+              Submit Log
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
