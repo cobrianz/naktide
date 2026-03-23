@@ -7,6 +7,9 @@ import AdventureGrid from "@/components/landing/AdventureGrid";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import TestimonialSection from "@/components/landing/TestimonialSection";
 import EditorialSection from "@/components/landing/EditorialSection";
+import ServicesSection from "@/components/landing/ServicesSection";
+import UpcomingEventsSection from "@/components/landing/UpcomingEventsSection";
+import MemoriesGrid from "@/components/landing/MemoriesGrid";
 import Footer from "@/components/landing/Footer";
 
 export default function Home() {
@@ -18,8 +21,11 @@ export default function Home() {
       <div className="py-12">
         <Filters />
       </div>
+      <ServicesSection />
       <FeaturesSection />
+      <UpcomingEventsSection />
       <AdventureGrid />
+      <MemoriesGrid />
       <TestimonialSection />
       <EditorialSection />
       <Footer />

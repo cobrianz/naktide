@@ -6,15 +6,17 @@ export default function Navbar() {
     <div className="fixed top-0 left-0 w-full z-50 bg-surface-container-high/95 backdrop-blur-md border-b border-outline-variant/30">
       <nav className="flex justify-between items-center w-full max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center gap-2">
-          <span
-            className="material-symbols-outlined text-secondary text-3xl"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            landscape
-          </span>
-          <div className="text-xl font-black text-on-background uppercase tracking-tighter font-headline">
-            NakTide
-          </div>
+          <Link href="/" className="flex items-center gap-2 group">
+            <span
+              className="material-symbols-outlined text-secondary text-3xl group-hover:scale-110 transition-transform"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              landscape
+            </span>
+            <div className="text-xl font-black text-on-background uppercase tracking-tighter font-headline">
+              NakTide
+            </div>
+          </Link>
         </div>
 
         <div className="hidden md:flex items-center gap-8">
@@ -22,13 +24,19 @@ export default function Navbar() {
             className="text-on-surface-variant text-sm font-bold hover:text-primary transition-colors font-headline tracking-tight"
             href="/explore"
           >
-            Destinations
+            Explore
           </Link>
           <Link
             className="text-on-surface-variant text-sm font-bold hover:text-primary transition-colors font-headline tracking-tight"
-            href="#"
+            href="/past-adventures"
           >
-            Experiences
+            Past Adventures
+          </Link>
+          <Link
+            className="text-on-surface-variant text-sm font-bold hover:text-primary transition-colors font-headline tracking-tight"
+            href="/gallery"
+          >
+            Gallery
           </Link>
           <Link
             className="text-on-surface-variant text-sm font-bold hover:text-primary transition-colors font-headline tracking-tight"

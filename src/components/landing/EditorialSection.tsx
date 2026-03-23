@@ -9,14 +9,21 @@ export default function EditorialSection() {
           <div className="bg-primary w-full h-full absolute -top-8 -left-8 rounded-xl opacity-10"></div>
           <img
             className="relative z-10 w-full rounded-xl"
-            alt="Modern eco-lodge with wood accents and large windows overlooking the plains"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSpgpntRu0a-X13nYvg92IB5re2_ajQya7Nm3Slr_zNgkxty4eVZJJxjquixl65o3YWAbzCaxS9467rIMVnvdn2hS6YZ-KwwwR0gSdZB8v3Pq3ynqEDBswnzofGZr9l3W5Uo-3wIk32OJfjek-UhttWxZXNze7Po2MpoXGxKWKPMZNOnkIuZzi5b_-VUinNBdg_57EJkj1uS43DFElpzAWnswDKDFK9R_SJ-GRAJvekoPFTOF3FblYznJvqdY_l8VA-qxKsmRcLw"
+            alt="Majestic safari landscape"
+            src="https://images.pexels.com/photos/34800172/pexels-photo-34800172.jpeg"
           />
         </div>
         <div className="lg:col-span-5">
-          <span className="text-primary font-bold uppercase tracking-[0.3em] text-xs mb-4 block">
+          <span className="text-primary font-bold uppercase tracking-[0.3em] text-xs mb-6 block">
             Our Philosophy
           </span>
+          <div className="mb-6 w-24 h-24 rounded-full overflow-hidden border-2 border-outline-variant/30">
+            <img 
+              src="https://images.pexels.com/photos/103123/pexels-photo-103123.jpeg?auto=compress&cs=tinysrgb&w=300" 
+              className="w-full h-full object-cover" 
+              alt="Safari Guide" 
+            />
+          </div>
           <h2 className="text-5xl font-black font-headline text-on-background leading-none mb-8">
             Travel with <br />
             Authority.

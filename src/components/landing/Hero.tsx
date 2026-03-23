@@ -106,14 +106,17 @@ export default function Hero() {
             </motion.div>
           </AnimatePresence>
         </div>
+      </div>
 
-        {/* Bottom Right CTA */}
-        <div className="self-end flex flex-col items-end gap-4 mt-auto">
+      {/* Absolute Bottom Right CTA */}
+      <div className="absolute font-body bottom-16 right-16 z-20 flex flex-col sm:flex-row gap-4">
+        <AnimatePresence mode="wait">
           <motion.div
+            key={currentIndex}
             className="flex flex-col sm:flex-row gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
           >
             <button className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-3 rounded-full font-bold text-sm tracking-wide hover:bg-white/20 transition-colors">
               Our Story
@@ -122,9 +125,9 @@ export default function Hero() {
               Browse Adventures
             </button>
           </motion.div>
-        </div>
-
+        </AnimatePresence>
       </div>
+
     </header>
   );
 }
