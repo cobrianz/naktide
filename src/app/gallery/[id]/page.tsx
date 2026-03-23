@@ -62,7 +62,7 @@ export default function EventGalleryPage({ params }: { params: Promise<{ id: str
 
       <Navbar />
 
-      <main className="pt-32 pb-24 px-6 md:px-12 max-w-[1400px] mx-auto">
+      <main className="pt-28 pb-16 px-4 md:px-8 lg:px-12 max-w-[1400px] mx-auto">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-12">
           <Link href="/gallery" className="hover:text-primary transition-colors">Gallery</Link>
@@ -91,14 +91,14 @@ export default function EventGalleryPage({ params }: { params: Promise<{ id: str
 
         {/* Thumbnail grid for remaining images */}
         {allImages.length > 1 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {allImages.slice(1).map((img, idx) => (
               <div
                 key={idx}
                 className="aspect-square overflow-hidden rounded-xl cursor-pointer group relative bg-surface-container-low"
                 onClick={() => setLightboxIndex(idx + 1)}
               >
-                <img src={img} alt={`${adventure.title} - ${idx + 2}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                <img src={img} alt={`${adventure.title} - ${idx + 2}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
               </div>
             ))}

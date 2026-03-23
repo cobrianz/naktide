@@ -8,107 +8,101 @@ import { MOCK_ADVENTURES } from "@/api/adventures";
 export default function GalleryPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredAdventures = MOCK_ADVENTURES.filter(adv => {
-    const term = searchTerm.toLowerCase();
-    return (
-      adv.title.toLowerCase().includes(term) ||
-      adv.location.toLowerCase().includes(term) ||
-      adv.date.toLowerCase().includes(term)
-    );
+  // Build a flat list of all images, each tagged with their adventure
+  const allCards = MOCK_ADVENTURES.flatMap(adv => {
+    const imgs = [adv.image, ...(adv.images || [])].filter((v, i, a) => a.indexOf(v) === i);
+    return imgs.map(url => ({ url, title: adv.title, location: adv.location, date: adv.date, id: adv.id }));
   });
+
+  const filtered = searchTerm
+    ? allCards.filter(c =>
+        c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.date.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : allCards;
+
+  // Assign a varying aspect-ratio class per index to mimic Pinterest heights
+  const heights = ["aspect-[2/3]", "aspect-[3/4]", "aspect-square", "aspect-[3/5]", "aspect-[4/5]", "aspect-[2/3]", "aspect-[1/1]", "aspect-[3/4]"];
 
   return (
     <div className="bg-surface min-h-screen text-on-surface font-body">
       <Navbar />
 
-      <main className="pt-32 pb-24 px-6 md:px-12 max-w-[1400px] mx-auto">
+      <main className="pt-32 pb-24 px-4 md:px-8 max-w-[1600px] mx-auto">
         {/* Header */}
-        <header className="mb-20">
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary block mb-4">NakTide Archives</span>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-            <h1 className="font-headline text-5xl md:text-7xl font-extrabold text-on-surface tracking-tighter">The Gallery.</h1>
-            <div className="relative max-w-xs w-full">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-sm">search</span>
-              <input
-                type="text"
-                placeholder="Search by location, trip, date..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="w-full bg-surface-container-highest rounded-full pl-11 pr-5 py-3 text-sm font-medium focus:outline-none text-on-surface placeholder:text-on-surface-variant/60 border border-outline-variant/30"
-              />
+        <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block mb-3">NakTide Archives</span>
+            <h1 className="font-headline text-5xl md:text-7xl font-black text-on-surface tracking-tighter">The Gallery.</h1>
+          </div>
+          <div className="relative max-w-[280px] w-full">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-base">search</span>
+            <input
+              type="text"
+              placeholder="Search trips, dates, places..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full bg-surface-container-highest rounded-full pl-11 pr-5 py-3 text-sm font-medium focus:outline-none text-on-surface placeholder:text-on-surface-variant/60 border border-outline-variant/30"
+            />
+          </div>
+        </div>
+
+        {/* Pinterest masonry via CSS columns */}
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-3 items-start">
+
+            {/* LEFT column — featured tall card + more images below */}
+            <div className="flex flex-col gap-3">
+              {filtered.slice(0, 4).map((card, i) => (
+                <Link
+                  key={`left-${card.id}-${i}`}
+                  href={`/gallery/${card.id}`}
+                  className="rounded-xl overflow-hidden relative bg-surface-container-low group block"
+                  style={{ minHeight: i === 0 ? "70vh" : "220px" }}
+                >
+                  <img
+                    src={card.url}
+                    alt={card.title}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-5">
+                    <span className="text-[9px] uppercase tracking-[0.2em] font-black text-white/60 block mb-1">{card.date}</span>
+                    <span className={`font-headline font-bold text-white leading-snug ${i === 0 ? "text-xl" : "text-sm"}`}>{card.title}</span>
+                    {i === 0 && <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold mt-1">{card.location}</span>}
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* RIGHT masonry — all remaining images */}
+            <div className="columns-1 sm:columns-2 lg:columns-3" style={{ columnGap: "12px" }}>
+              {filtered.slice(4).map((card, idx) => (
+                <Link
+                  key={`${card.id}-${idx}`}
+                  href={`/gallery/${card.id}`}
+                  className="break-inside-avoid inline-block w-full mb-3 rounded-xl overflow-hidden relative bg-surface-container-low group block"
+                >
+                  <img
+                    src={card.url}
+                    alt={card.title}
+                    className={`w-full object-cover ${heights[idx % heights.length]} group-hover:scale-105 transition-transform duration-700`}
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-transparent flex flex-col justify-end p-4">
+                    <span className="text-[9px] uppercase tracking-[0.2em] font-black text-white/60 block mb-0.5">{card.date}</span>
+                    <span className="text-sm font-headline font-bold text-white leading-snug">{card.title}</span>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
-        </header>
 
-        {filteredAdventures.length > 0 ? (
-          <div className="space-y-6">
-            {filteredAdventures.map((adv, idx) => {
-              const allImages = [adv.image, ...(adv.images || [])].filter(Boolean);
-              const previewImg1 = allImages[1] || allImages[0];
-              const previewImg2 = allImages[2] || allImages[0];
-              const totalPhotos = allImages.length;
-
-              return (
-                <Link key={adv.id} href={`/gallery/${adv.id}`} className="block group">
-                  <div className="grid grid-cols-1 md:grid-cols-[60%_40%] gap-4 h-[480px] md:h-[520px]">
-                    {/* Large Left Image */}
-                    <div className="relative overflow-hidden rounded-2xl bg-surface-container-low">
-                      <img
-                        src={adv.image}
-                        alt={adv.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
-                      />
-                      {/* Bottom overlay */}
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 pt-24 p-8 to-transparent">
-                        <span className="inline-block bg-secondary-container text-on-secondary-container text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-3">
-                          {adv.location}
-                        </span>
-                        <h2 className="font-headline font-black text-white text-3xl md:text-4xl leading-tight tracking-tight mb-3">
-                          {adv.title}
-                        </h2>
-                        <span className="text-white/60 text-xs font-bold uppercase tracking-widest border-b border-white/30 pb-0.5 group-hover:border-primary-fixed group-hover:text-primary-fixed transition-colors">
-                          View Gallery ({totalPhotos} Photos) →
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Right single thumbnail */}
-                    <div className="hidden md:block relative overflow-hidden rounded-2xl bg-surface-container-low h-full">
-                      <img
-                        src={previewImg1}
-                        alt={adv.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 group-hover:brightness-75"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="bg-black/60 backdrop-blur-md text-white px-5 py-3 rounded-full flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
-                          <span className="material-symbols-outlined text-base">grid_view</span>
-                          View Gallery
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Date strip below each block */}
-                  <div className="mt-3 flex items-center gap-4 text-[11px] text-on-surface-variant font-medium pl-1">
-                    <span className="font-black uppercase tracking-[0.2em] text-on-surface-variant/60">{adv.date}</span>
-                    <span className="text-outline-variant/40">·</span>
-                    <span className="uppercase tracking-widest">{adv.category}</span>
-                    <span className="text-outline-variant/40">·</span>
-                    <span>{totalPhotos} Photos</span>
-                  </div>
-
-                  {/* Divider */}
-                  {idx < filteredAdventures.length - 1 && (
-                    <div className="mt-8 border-t border-outline-variant/20" />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
         ) : (
           <div className="text-center py-40 text-on-surface-variant">
-            <span className="material-symbols-outlined text-6xl mb-4 opacity-40 block">image_not_supported</span>
-            <span className="font-bold text-lg">No expeditions match your search.</span>
+            <span className="material-symbols-outlined text-6xl mb-4 opacity-30 block">image_not_supported</span>
+            <span className="font-bold text-lg">No photos match your search.</span>
           </div>
         )}
       </main>
