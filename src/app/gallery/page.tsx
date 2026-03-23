@@ -50,55 +50,45 @@ export default function GalleryPage() {
 
         {/* Pinterest masonry via CSS columns */}
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-3 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 auto-rows-[100px] gap-3 grid-flow-dense">
+            {filtered.map((card, idx) => {
+              const isFirst = idx === 0;
+              // Varying heights for others to maintain masonry-ish feel
+              const rowSpans = [3, 4, 3, 5, 4, 3];
+              const span = isFirst ? 7 : rowSpans[idx % rowSpans.length];
 
-            {/* LEFT column — featured tall card + more images below */}
-            <div className="flex flex-col gap-3">
-              {filtered.slice(0, 4).map((card, i) => (
-                <Link
-                  key={`left-${card.id}-${i}`}
-                  href={`/gallery/${card.id}`}
-                  className="rounded-xl overflow-hidden relative bg-surface-container-low group block"
-                  style={{ minHeight: i === 0 ? "70vh" : "220px" }}
-                >
-                  <img
-                    src={card.url}
-                    alt={card.title}
-                    loading={i === 0 ? "eager" : "lazy"}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-5">
-                    <span className="text-[9px] uppercase tracking-[0.2em] font-black text-white/60 block mb-1">{card.date}</span>
-                    <span className={`font-headline font-bold text-white leading-snug ${i === 0 ? "text-xl" : "text-sm"}`}>{card.title}</span>
-                    {i === 0 && <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold mt-1">{card.location}</span>}
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {/* RIGHT masonry — all remaining images */}
-            <div className="columns-1 sm:columns-2 lg:columns-3" style={{ columnGap: "12px" }}>
-              {filtered.slice(4).map((card, idx) => (
+              return (
                 <Link
                   key={`${card.id}-${idx}`}
                   href={`/gallery/${card.id}`}
-                  className="break-inside-avoid inline-block w-full mb-3 rounded-xl overflow-hidden relative bg-surface-container-low group block"
+                  className={`relative rounded-xl overflow-hidden bg-surface-container-low group block ${
+                    isFirst ? "lg:col-span-2 lg:row-span-7" : "col-span-1"
+                  }`}
+                  style={{ gridRow: `span ${span}` }}
                 >
                   <img
                     src={card.url}
                     alt={card.title}
-                    className={`w-full object-cover ${heights[idx % heights.length]} group-hover:scale-105 transition-transform duration-700`}
-                    loading="lazy"
+                    loading={isFirst ? "eager" : "lazy"}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-transparent flex flex-col justify-end p-4">
-                    <span className="text-[9px] uppercase tracking-[0.2em] font-black text-white/60 block mb-0.5">{card.date}</span>
-                    <span className="text-sm font-headline font-bold text-white leading-snug">{card.title}</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-5">
+                    <span className="text-[9px] uppercase tracking-[0.2em] font-black text-white/60 block mb-1">
+                      {card.date}
+                    </span>
+                    <span className={`font-headline font-bold text-white leading-snug ${isFirst ? "text-xl md:text-2xl" : "text-sm"}`}>
+                      {card.title}
+                    </span>
+                    {isFirst && (
+                      <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold mt-2">
+                        {card.location}
+                      </span>
+                    )}
                   </div>
                 </Link>
-              ))}
-            </div>
+              );
+            })}
           </div>
-
         ) : (
           <div className="text-center py-40 text-on-surface-variant">
             <span className="material-symbols-outlined text-6xl mb-4 opacity-30 block">image_not_supported</span>

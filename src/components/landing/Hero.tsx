@@ -101,14 +101,21 @@ export default function Hero() {
               {slide.title}
             </h1>
 
-            {/* Read More Link — styled exactly like reference */}
-            <Link
-              href={`/adventures/${slide.id}`}
-              className="text-white text-sm font-semibold tracking-widest uppercase border-b border-white/40 pb-0.5 hover:border-primary-fixed hover:text-primary-fixed transition-colors inline-flex items-center gap-2"
-            >
-              Read More
-              <span className="text-base">→</span>
-            </Link>
+            {/* Updated CTAs — bottom left */}
+            <div className="flex items-center gap-6 mt-8">
+              <Link
+                href={`/adventures/${slide.id}`}
+                className="text-white text-xs font-black tracking-[0.2em] bg-primary px-8 py-4 rounded-full hover:bg-primary-container transition-all shadow-lg active:scale-95"
+              >
+                Upcoming Tours
+              </Link>
+              <Link
+                href="/gallery"
+                className="text-white text-xs font-black tracking-[0.2em] border-b-2 border-white/20 pb-1 hover:border-primary transition-all"
+              >
+                Gallery
+              </Link>
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -127,19 +134,7 @@ export default function Hero() {
         ))}
       </div>
 
-      {/* CTAs — absolute center-right */}
-      <div className="absolute bottom-16 right-20 z-20 hidden md:flex flex-col gap-3 mr-8">
-        <Link href="/explore">
-          <button className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-7 py-3 rounded-full font-bold text-xs tracking-widest uppercase hover:bg-white/20 transition-colors">
-            Browse Adventures
-          </button>
-        </Link>
-        <Link href="/gallery">
-          <button className="text-white/60 hover:text-white text-xs tracking-widest uppercase font-bold transition-colors text-center">
-            View Gallery →
-          </button>
-        </Link>
-      </div>
+
     </header>
   );
 }

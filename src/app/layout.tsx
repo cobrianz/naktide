@@ -25,7 +25,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased min-h-screen flex flex-col bg-background text-on-background">
+      <body 
+        className="antialiased min-h-screen flex flex-col bg-background text-on-background"
+        suppressHydrationWarning
+      >
         {children}
       </body>
     </html>
