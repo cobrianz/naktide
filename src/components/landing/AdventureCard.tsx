@@ -22,8 +22,8 @@ export default function AdventureCard({
   slots,
 }: AdventureCardProps) {
   return (
-    <div className="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all">
-      <div className="relative h-80 overflow-hidden">
+    <div className="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all h-full">
+      <div className="relative h-80 overflow-hidden shrink-0">
         <img
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           alt={altText}

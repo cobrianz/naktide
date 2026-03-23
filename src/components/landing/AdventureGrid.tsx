@@ -5,7 +5,7 @@ const ADVENTURES = [
   {
     id: 1,
     image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCSpgpntRu0a-X13nYvg92IB5re2_ajQya7Nm3Slr_zNgkxty4eVZJJxjquixl65o3YWAbzCaxS9467rIMVnvdn2hS6YZ-KwwwR0gSdZB8v3Pq3ynqEDBswnzofGZr9l3W5Uo-3wIk32OJfjek-UhttWxZXNze7Po2MpoXGxKWKPMZNOnkIuZzi5b_-VUinNBdg_57EJkj1uS43DFElpzAWnswDKDFK9R_SJ-GRAJvekoPFTOF3FblYznJvqdY_l8VA-qxKsmRcLw",
+      "https://images.pexels.com/photos/1054668/pexels-photo-1054668.jpeg?auto=compress&cs=tinysrgb&w=800",
     altText: "Close up of a majestic lion in tall grass",
     category: "Safari",
     location: "Tanzania",
@@ -17,7 +17,7 @@ const ADVENTURES = [
   {
     id: 2,
     image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCSpgpntRu0a-X13nYvg92IB5re2_ajQya7Nm3Slr_zNgkxty4eVZJJxjquixl65o3YWAbzCaxS9467rIMVnvdn2hS6YZ-KwwwR0gSdZB8v3Pq3ynqEDBswnzofGZr9l3W5Uo-3wIk32OJfjek-UhttWxZXNze7Po2MpoXGxKWKPMZNOnkIuZzi5b_-VUinNBdg_57EJkj1uS43DFElpzAWnswDKDFK9R_SJ-GRAJvekoPFTOF3FblYznJvqdY_l8VA-qxKsmRcLw",
+      "https://images.pexels.com/photos/4034871/pexels-photo-4034871.jpeg?auto=compress&cs=tinysrgb&w=800",
     altText: "Misty mountain range in Rwanda",
     category: "Trekking",
     location: "Rwanda",
@@ -29,7 +29,7 @@ const ADVENTURES = [
   {
     id: 3,
     image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCSpgpntRu0a-X13nYvg92IB5re2_ajQya7Nm3Slr_zNgkxty4eVZJJxjquixl65o3YWAbzCaxS9467rIMVnvdn2hS6YZ-KwwwR0gSdZB8v3Pq3ynqEDBswnzofGZr9l3W5Uo-3wIk32OJfjek-UhttWxZXNze7Po2MpoXGxKWKPMZNOnkIuZzi5b_-VUinNBdg_57EJkj1uS43DFElpzAWnswDKDFK9R_SJ-GRAJvekoPFTOF3FblYznJvqdY_l8VA-qxKsmRcLw",
+      "https://images.pexels.com/photos/1670984/pexels-photo-1670984.jpeg?auto=compress&cs=tinysrgb&w=800",
     altText: "Distant silhouette of an elephant against a dusty sunset",
     category: "Photography",
     location: "Botswana",

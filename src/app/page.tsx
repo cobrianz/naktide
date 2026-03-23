@@ -4,6 +4,8 @@ import NoticeBanner from "@/components/landing/NoticeBanner";
 import Hero from "@/components/landing/Hero";
 import Filters from "@/components/landing/Filters";
 import AdventureGrid from "@/components/landing/AdventureGrid";
+import FeaturesSection from "@/components/landing/FeaturesSection";
+import TestimonialSection from "@/components/landing/TestimonialSection";
 import EditorialSection from "@/components/landing/EditorialSection";
 import Footer from "@/components/landing/Footer";
 
@@ -13,8 +15,12 @@ export default function Home() {
       <Navbar />
       <NoticeBanner />
       <Hero />
-      <Filters />
+      <div className="py-12">
+        <Filters />
+      </div>
+      <FeaturesSection />
       <AdventureGrid />
+      <TestimonialSection />
       <EditorialSection />
       <Footer />
     </div>

@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <div className="fixed top-6 w-full z-50 flex justify-center px-4">
-      <nav className="flex justify-between items-center w-full max-w-6xl bg-surface-container-high/90 backdrop-blur-md px-6 py-3 rounded-full border border-outline-variant/30">
+    <div className="fixed top-0 left-0 w-full z-50 bg-surface-container-high/95 backdrop-blur-md border-b border-outline-variant/30">
+      <nav className="flex justify-between items-center w-full max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center gap-2">
           <span
             className="material-symbols-outlined text-secondary text-3xl"
@@ -17,7 +17,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className="hidden md:flex items-center bg-surface-container-lowest/50 backdrop-blur-sm px-6 py-2 rounded-full gap-8 border border-outline-variant/20">
+        <div className="hidden md:flex items-center gap-8">
           <Link
             className="text-on-surface-variant text-sm font-bold hover:text-primary transition-colors font-headline tracking-tight"
             href="/explore"
@@ -49,7 +49,7 @@ export default function Navbar() {
             Login
           </button>
           <button className="bg-on-background text-on-primary px-5 py-2 rounded-full text-sm font-bold hover:bg-inverse-surface transition-colors">
-            Dashboard
+            Book Now
           </button>
         </div>
       </nav>
