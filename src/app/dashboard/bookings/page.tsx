@@ -58,8 +58,8 @@ export default function BookingsPage() {
     <div className="flex flex-col gap-10">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl lg:text-5xl font-black text-on-surface tracking-tight">My Bookings</h1>
-          <p className="text-on-surface-variant font-medium mt-2">Manage your expeditions across the Savannah.</p>
+          <h1 className="text-4xl lg:text-5xl font-black text-on-surface tracking-tight font-headline">My Bookings</h1>
+          <p className="text-on-surface-variant font-medium mt-2 text-lg lg:text-xl">Manage your expeditions across the Savannah.</p>
         </div>
         <div className="flex items-center gap-4 bg-surface-container-low p-2 rounded-2xl border border-outline-variant/10">
           <select className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 cursor-pointer px-4">
@@ -106,12 +106,15 @@ export default function BookingsPage() {
                 <p className="font-headline font-bold text-base text-on-surface">{bookings[0].attendees}</p>
               </div>
             </div>
-            <div className="mt-auto flex gap-4">
-              <button className="flex-1 bg-surface-container-high text-on-surface font-black uppercase tracking-widest text-[10px] py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-surface-dim transition-colors">
+            <div className="mt-8 lg:mt-auto flex flex-col sm:flex-row gap-4">
+              <button 
+                onClick={() => handleDownload(bookings[0])}
+                className="flex-1 bg-surface-container-high text-on-surface font-black uppercase tracking-widest text-[10px] py-5 rounded-xl flex items-center justify-center gap-3 hover:bg-surface-dim transition-colors border border-outline-variant/10"
+              >
                 <span className="material-symbols-outlined text-sm">receipt_long</span>
                 Download Receipt
               </button>
-              <button className="flex-1 bg-primary text-white font-black uppercase tracking-widest text-[10px] py-4 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
+              <button className="flex-1 bg-primary text-white font-black uppercase tracking-widest text-[10px] py-5 rounded-xl hover:opacity-90 transition-opacity shadow-xl shadow-primary/20">
                 Modify Booking
               </button>
             </div>
