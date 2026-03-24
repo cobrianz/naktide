@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { type ReactNode, useState } from "react";
 
+import { LogoutButton } from "@/components/auth/LogoutButton";
 import type { UserProfile } from "@/lib/mock-data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,11 @@ function Sidebar({
             <p className="mt-3 text-sm text-white/70">
               Your traveler workspace is ready for Maasai Mara, Amboseli, Samburu, and regional departures.
             </p>
+            <LogoutButton
+              variant="secondary"
+              size="sm"
+              className="mt-5 w-full justify-center rounded-xl bg-white text-[#1a1c19] hover:bg-white/90"
+            />
           </>
         ) : (
           <div className="flex justify-center">
@@ -174,9 +180,7 @@ export function UserDashboardShell({
                 <Link href="/explore" className="inline-flex items-center rounded-full border border-[#1a1c19]/10 bg-white px-4 py-2 text-sm font-semibold">
                   Browse safaris
                 </Link>
-                <Link href="/admin" className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white">
-                  Open admin project
-                </Link>
+                <LogoutButton className="rounded-full border border-[#1a1c19]/10 bg-white px-4 py-2 text-sm font-semibold text-[#1a1c19] hover:bg-white/90" />
               </div>
             </div>
           </header>

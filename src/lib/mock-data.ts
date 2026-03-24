@@ -59,6 +59,31 @@ type OperationsFeedItem = {
 
 let seedPromise: Promise<void> | null = null;
 
+function toPlainValue<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((item) => toPlainValue(item)) as T;
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString() as T;
+  }
+
+  if (value && typeof value === "object") {
+    const candidate = value as { toHexString?: () => string };
+    if (typeof candidate.toHexString === "function") {
+      return candidate.toHexString() as T;
+    }
+
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([key]) => key !== "_id")
+        .map(([key, nestedValue]) => [key, toPlainValue(nestedValue)]),
+    ) as T;
+  }
+
+  return value;
+}
+
 async function ensureSeeded() {
   if (!seedPromise) {
     seedPromise = (async () => {
@@ -199,12 +224,13 @@ export async function getUserProfile(): Promise<UserProfile> {
   const db = await dataDb();
   const profile = await db.collection<UserProfile>("userProfiles").findOne({ id: await currentUserId() });
   if (!profile) throw new Error("Profile not found");
-  return profile;
+  return toPlainValue(profile);
 }
 
 export async function getUserMessages() {
   const db = await dataDb();
-  return db.collection<UserMessage & { userId: string }>("messages").find({ userId: await currentUserId() }).sort({ receivedAt: -1 }).toArray();
+  const messages = await db.collection<UserMessage & { userId: string }>("messages").find({ userId: await currentUserId() }).sort({ receivedAt: -1 }).toArray();
+  return toPlainValue(messages);
 }
 
 export async function createUserMessage(payload: Omit<UserMessage, "id" | "receivedAt" | "preview"> & { preview?: string }) {
@@ -217,14 +243,16 @@ export async function createUserMessage(payload: Omit<UserMessage, "id" | "recei
 export async function updateUserMessage(idValue: string, partial: Partial<UserMessage>) {
   const db = await dataDb();
   await db.collection<UserMessage & { userId: string }>("messages").updateOne({ id: idValue }, { $set: partial });
-  return db.collection<UserMessage & { userId: string }>("messages").findOne({ id: idValue });
+  return toPlainValue(await db.collection<UserMessage & { userId: string }>("messages").findOne({ id: idValue }));
 }
 
 export async function getUserBookings() {
   const session = await requireSession();
   const db = await dataDb();
-  if (session.role === "admin") return db.collection<Booking>("bookings").find({}).sort({ travelDate: 1 }).toArray();
-  return db.collection<Booking>("bookings").find({ customerId: session.userId }).sort({ travelDate: 1 }).toArray();
+  if (session.role === "admin") {
+    return toPlainValue(await db.collection<Booking>("bookings").find({}).sort({ travelDate: 1 }).toArray());
+  }
+  return toPlainValue(await db.collection<Booking>("bookings").find({ customerId: session.userId }).sort({ travelDate: 1 }).toArray());
 }
 
 export async function getBookingById(idValue: string) {
@@ -232,12 +260,13 @@ export async function getBookingById(idValue: string) {
   const booking = await db.collection<Booking>("bookings").findOne({ id: idValue });
   const session = await requireSession();
   if (session.role !== "admin" && booking?.customerId !== session.userId) return undefined;
-  return booking;
+  return booking ? toPlainValue(booking) : undefined;
 }
 
 export async function getWishlist() {
   const db = await dataDb();
-  return db.collection<WishlistItem & { userId: string }>("wishlist").find({ userId: await currentUserId() }).toArray();
+  const wishlist = await db.collection<WishlistItem & { userId: string }>("wishlist").find({ userId: await currentUserId() }).toArray();
+  return toPlainValue(wishlist);
 }
 
 export async function getUserSettings(): Promise<UserSettings> {
@@ -280,7 +309,7 @@ export async function getDashboardSummary() {
 
 export async function getAdminCustomers() {
   const db = await dataDb();
-  return db.collection<AdminCustomer>("adminCustomers").find({}).sort({ name: 1 }).toArray();
+  return toPlainValue(await db.collection<AdminCustomer>("adminCustomers").find({}).sort({ name: 1 }).toArray());
 }
 
 export async function createAdminCustomer(payload: Omit<AdminCustomer, "id" | "lastSeen">) {
@@ -293,7 +322,7 @@ export async function createAdminCustomer(payload: Omit<AdminCustomer, "id" | "l
 export async function updateAdminCustomer(idValue: string, partial: Partial<AdminCustomer>) {
   const db = await dataDb();
   await db.collection<AdminCustomer>("adminCustomers").updateOne({ id: idValue }, { $set: { ...partial, lastSeen: now() } });
-  return db.collection<AdminCustomer>("adminCustomers").findOne({ id: idValue });
+  return toPlainValue(await db.collection<AdminCustomer>("adminCustomers").findOne({ id: idValue }));
 }
 
 export async function deleteAdminCustomer(idValue: string) {
@@ -304,13 +333,13 @@ export async function deleteAdminCustomer(idValue: string) {
 
 export async function getInventory(): Promise<InventoryItem[]> {
   const db = await dataDb();
-  return db.collection<InventoryItem>("inventory").find({}).toArray();
+  return toPlainValue(await db.collection<InventoryItem>("inventory").find({}).toArray());
 }
 
 export async function getAdminSettings(): Promise<AdminSettings> {
   const db = await dataDb();
   const settings = await db.collection<AdminSettings>("adminSettings").findOne({});
-  if (settings) return settings;
+  if (settings) return toPlainValue(settings);
   const fallback = await seedSource.getAdminSettings();
   await db.collection<AdminSettings>("adminSettings").insertOne(fallback);
   return fallback;
@@ -326,7 +355,7 @@ export async function updateAdminSettings(partial: Partial<AdminSettings>) {
 
 export async function getCatalogue(): Promise<Adventure[]> {
   const db = await dataDb();
-  return db.collection<Adventure>("adventures").find({}).toArray();
+  return toPlainValue(await db.collection<Adventure>("adventures").find({}).toArray());
 }
 
 export async function createTour(payload: { title: string; location: string; price: string; date: string; overview: string; category: string; image: string; status?: "upcoming" | "completed"; gallery?: string[]; }) {
@@ -358,7 +387,7 @@ export async function createTour(payload: { title: string; location: string; pri
 export async function updateTour(idValue: string, partial: Partial<Adventure>) {
   const db = await dataDb();
   await db.collection<Adventure>("adventures").updateOne({ id: idValue }, { $set: partial });
-  return db.collection<Adventure>("adventures").findOne({ id: idValue });
+  return toPlainValue(await db.collection<Adventure>("adventures").findOne({ id: idValue }));
 }
 
 export async function deleteTour(idValue: string) {
@@ -367,26 +396,26 @@ export async function deleteTour(idValue: string) {
   return { ok: true };
 }
 
-export async function getSiteNotifications() { const db = await dataDb(); return db.collection<SiteNotification>("siteNotifications").find({}).toArray(); }
+export async function getSiteNotifications() { const db = await dataDb(); return toPlainValue(await db.collection<SiteNotification>("siteNotifications").find({}).toArray()); }
 export async function createNotification(payload: Omit<SiteNotification, "id">) { const db = await dataDb(); const item = { ...payload, id: id("notif") }; await db.collection<SiteNotification>("siteNotifications").insertOne(item); return item; }
-export async function updateNotification(idValue: string, partial: Partial<SiteNotification>) { const db = await dataDb(); await db.collection<SiteNotification>("siteNotifications").updateOne({ id: idValue }, { $set: partial }); return db.collection<SiteNotification>("siteNotifications").findOne({ id: idValue }); }
+export async function updateNotification(idValue: string, partial: Partial<SiteNotification>) { const db = await dataDb(); await db.collection<SiteNotification>("siteNotifications").updateOne({ id: idValue }, { $set: partial }); return toPlainValue(await db.collection<SiteNotification>("siteNotifications").findOne({ id: idValue })); }
 export async function deleteNotification(idValue: string) { const db = await dataDb(); await db.collection<SiteNotification>("siteNotifications").deleteOne({ id: idValue }); return { ok: true }; }
 
-export async function getMediaAssets() { const db = await dataDb(); return db.collection<MediaAsset>("mediaAssets").find({}).toArray(); }
+export async function getMediaAssets() { const db = await dataDb(); return toPlainValue(await db.collection<MediaAsset>("mediaAssets").find({}).toArray()); }
 export async function createMediaAsset(payload: Omit<MediaAsset, "id">) { const db = await dataDb(); const item = { ...payload, id: id("media") }; await db.collection<MediaAsset>("mediaAssets").insertOne(item); return item; }
-export async function updateMediaAsset(idValue: string, partial: Partial<MediaAsset>) { const db = await dataDb(); await db.collection<MediaAsset>("mediaAssets").updateOne({ id: idValue }, { $set: partial }); return db.collection<MediaAsset>("mediaAssets").findOne({ id: idValue }); }
+export async function updateMediaAsset(idValue: string, partial: Partial<MediaAsset>) { const db = await dataDb(); await db.collection<MediaAsset>("mediaAssets").updateOne({ id: idValue }, { $set: partial }); return toPlainValue(await db.collection<MediaAsset>("mediaAssets").findOne({ id: idValue })); }
 export async function deleteMediaAsset(idValue: string) { const db = await dataDb(); await db.collection<MediaAsset>("mediaAssets").deleteOne({ id: idValue }); return { ok: true }; }
 
-export async function getBillingRecords() { const db = await dataDb(); return db.collection<BillingRecord>("billingRecords").find({}).toArray(); }
-export async function updateBillingRecord(idValue: string, partial: Partial<BillingRecord>) { const db = await dataDb(); await db.collection<BillingRecord>("billingRecords").updateOne({ id: idValue }, { $set: partial }); return db.collection<BillingRecord>("billingRecords").findOne({ id: idValue }); }
+export async function getBillingRecords() { const db = await dataDb(); return toPlainValue(await db.collection<BillingRecord>("billingRecords").find({}).toArray()); }
+export async function updateBillingRecord(idValue: string, partial: Partial<BillingRecord>) { const db = await dataDb(); await db.collection<BillingRecord>("billingRecords").updateOne({ id: idValue }, { $set: partial }); return toPlainValue(await db.collection<BillingRecord>("billingRecords").findOne({ id: idValue })); }
 export async function createBillingRecord(payload: Omit<BillingRecord, "id">) { const db = await dataDb(); const item = { ...payload, id: id("bill") }; await db.collection<BillingRecord>("billingRecords").insertOne(item); return item; }
 export async function deleteBillingRecord(idValue: string) { const db = await dataDb(); await db.collection<BillingRecord>("billingRecords").deleteOne({ id: idValue }); return { ok: true }; }
 
-export async function getAnalytics() { const db = await dataDb(); return db.collection<AnalyticsDatum>("analytics").find({}).toArray(); }
-export async function getOperationsFeed() { const db = await dataDb(); return db.collection<OperationsFeedItem>("operationsFeed").find({}).sort({ at: -1 }).toArray(); }
+export async function getAnalytics() { const db = await dataDb(); return toPlainValue(await db.collection<AnalyticsDatum>("analytics").find({}).toArray()); }
+export async function getOperationsFeed() { const db = await dataDb(); return toPlainValue(await db.collection<OperationsFeedItem>("operationsFeed").find({}).sort({ at: -1 }).toArray()); }
 
 export async function getAdminOverview() {
-  const bookings = await dataDb().then((db) => db.collection<Booking>("bookings").find({}).toArray());
+  const bookings = toPlainValue(await dataDb().then((db) => db.collection<Booking>("bookings").find({}).toArray()));
   const customers = await getAdminCustomers();
   const inventory = await getInventory();
   const billing = await getBillingRecords();
@@ -410,12 +439,12 @@ export async function getAdminOverview() {
   };
 }
 
-export async function updateBooking(idValue: string, partial: Partial<Booking>) { const db = await dataDb(); await db.collection<Booking>("bookings").updateOne({ id: idValue }, { $set: partial }); return db.collection<Booking>("bookings").findOne({ id: idValue }); }
+export async function updateBooking(idValue: string, partial: Partial<Booking>) { const db = await dataDb(); await db.collection<Booking>("bookings").updateOne({ id: idValue }, { $set: partial }); return toPlainValue(await db.collection<Booking>("bookings").findOne({ id: idValue })); }
 export async function deleteBooking(idValue: string) { const db = await dataDb(); await db.collection<Booking>("bookings").deleteOne({ id: idValue }); return { ok: true }; }
 export async function getPublicContentSnapshot(): Promise<PublicContentSnapshot> { return { notifications: await getSiteNotifications(), media: await getMediaAssets(), tours: await getCatalogue() }; }
-export async function getBlogPosts() { const db = await dataDb(); return db.collection<BlogPost>("blogPosts").find({}).toArray(); }
+export async function getBlogPosts() { const db = await dataDb(); return toPlainValue(await db.collection<BlogPost>("blogPosts").find({}).toArray()); }
 export async function createBlogPost(payload: Omit<BlogPost, "id" | "slug"> & { slug?: string }) { const db = await dataDb(); const item = { ...payload, id: id("blog"), slug: payload.slug ?? payload.title.toLowerCase().replace(/\s+/g, "-") }; await db.collection<BlogPost>("blogPosts").insertOne(item); return item; }
-export async function updateBlogPost(idValue: string, partial: Partial<BlogPost>) { const db = await dataDb(); await db.collection<BlogPost>("blogPosts").updateOne({ id: idValue }, { $set: partial }); return db.collection<BlogPost>("blogPosts").findOne({ id: idValue }); }
+export async function updateBlogPost(idValue: string, partial: Partial<BlogPost>) { const db = await dataDb(); await db.collection<BlogPost>("blogPosts").updateOne({ id: idValue }, { $set: partial }); return toPlainValue(await db.collection<BlogPost>("blogPosts").findOne({ id: idValue })); }
 export async function deleteBlogPost(idValue: string) { const db = await dataDb(); await db.collection<BlogPost>("blogPosts").deleteOne({ id: idValue }); return { ok: true }; }
 
 export { ensureSeeded };

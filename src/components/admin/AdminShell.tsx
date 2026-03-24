@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { ReactNode } from "react";
 import { useState } from "react";
 
+import { LogoutButton } from "@/components/auth/LogoutButton";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -38,9 +39,9 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
     <aside className="flex h-full w-[86vw] max-w-[320px] flex-col border-r border-[#1a1c19]/8 bg-[#f7f1e5]/96 p-5 backdrop-blur lg:w-72">
       <div className="flex items-center justify-between border-b border-[#1a1c19]/8 pb-5">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-primary/60">Admin project</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-primary/60">Operations desk</p>
           <h2 className="mt-3 text-3xl font-black tracking-tight text-on-background">NakTide Control</h2>
-          <p className="mt-2 text-sm text-on-surface-variant">Full-screen operations console for tours, billing, notifications, and traveler management.</p>
+          <p className="mt-2 text-sm text-on-surface-variant">Safari operations for departures, billing, guest care, content, and inventory management.</p>
         </div>
         {onClose ? (
           <Button variant="ghost" size="icon" className="rounded-xl text-on-background lg:hidden" onClick={onClose}>
@@ -70,8 +71,9 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
 
       <div className="mt-auto rounded-xl bg-white p-5 text-on-background shadow-sm">
         <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60">Mode</p>
-        <p className="mt-2 text-2xl font-black">Mock API</p>
-        <p className="mt-2 text-sm font-medium text-on-surface-variant">All admin flows are structured so MongoDB can replace the mock repository later.</p>
+        <p className="mt-2 text-2xl font-black">Live safari desk</p>
+        <p className="mt-2 text-sm font-medium text-on-surface-variant">Use this console to coordinate departures, guest communications, payments, and field inventory.</p>
+        <LogoutButton className="mt-4 w-full justify-center rounded-xl" />
       </div>
     </aside>
   );
@@ -134,8 +136,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
                   Public site
                 </Link>
                 <Link href="/dashboard" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white">
-                  User project
+                  Traveler view
                 </Link>
+                <LogoutButton className="rounded-full border border-[#1a1c19]/10 bg-white px-4 py-2 text-sm font-semibold text-on-background" />
               </div>
             </div>
           </header>
@@ -148,7 +151,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <DialogContent className="max-w-md rounded-lg bg-[#fffaf2]">
           <DialogHeader>
             <DialogTitle>Quick action</DialogTitle>
-            <DialogDescription>Jump directly into common admin tasks.</DialogDescription>
+            <DialogDescription>Jump directly into common safari operations tasks.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-3">
             {quickActions.map((action) => (
@@ -167,4 +170,3 @@ export function AdminShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
-

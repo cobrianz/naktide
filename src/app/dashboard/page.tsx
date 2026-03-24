@@ -26,8 +26,8 @@ export default async function DashboardPage() {
                 Jambo, {profile.firstName}
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-white/70 lg:text-base">
-                Your dashboard is now driven by a shared mock repository and route handlers, so all traveler
-                surfaces can move to MongoDB later without changing the page contracts.
+                Track your upcoming safari departures, payment milestones, saved itineraries, and concierge notes
+                from one traveler workspace.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Badge className="bg-white/10 px-4 py-2 text-white">Next window: {profile.nextJourneyWindow}</Badge>
