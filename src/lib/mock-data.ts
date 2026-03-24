@@ -22,9 +22,12 @@ export interface UserMessage {
   id: string;
   subject: string;
   preview: string;
+  body: string;
   from: string;
+  to?: string;
   receivedAt: string;
   status: MessageStatus;
+  bookingId?: string;
 }
 
 export interface Booking {
@@ -41,6 +44,7 @@ export interface Booking {
   image: string;
   customerId: string;
   customerName: string;
+  travelers?: string[];
   notes: string;
 }
 
@@ -165,23 +169,31 @@ const messages: UserMessage[] = [
     id: "msg-001",
     subject: "Final traveler brief for Serengeti Crossing",
     preview: "Your private guide assignment, charter timing, and camp notes are ready for review.",
+    body: "Your private guide assignment is confirmed, charter timing from Wilson is locked, and camp notes are attached for review before departure.",
     from: "Concierge Desk",
+    to: "Julian Alexander Vance",
     receivedAt: "2026-03-22T10:30:00.000Z",
     status: "unread",
+    bookingId: "booking-001",
   },
   {
     id: "msg-002",
     subject: "Upgrade available: night photography permit",
     preview: "We can attach a protected conservancy permit to your October departure.",
+    body: "Operations has identified an opening for a protected conservancy night photography permit. Reply if you want us to add the supplement.",
     from: "Operations",
+    to: "Julian Alexander Vance",
     receivedAt: "2026-03-20T15:00:00.000Z",
     status: "replied",
+    bookingId: "booking-001",
   },
   {
     id: "msg-003",
     subject: "Loyalty milestone reached",
     preview: "Your account has crossed the threshold for a private airstrip transfer credit.",
+    body: "Your account has crossed the threshold for a private airstrip transfer credit that can be applied to a future Kenya or regional departure.",
     from: "Rewards",
+    to: "Julian Alexander Vance",
     receivedAt: "2026-03-18T08:15:00.000Z",
     status: "archived",
   },
@@ -202,6 +214,7 @@ let bookings: Booking[] = [
     image: MOCK_ADVENTURES[0]?.image ?? "",
     customerId: "user-001",
     customerName: "Julian Alexander Vance",
+    travelers: ["Julian Alexander Vance", "Maya Vance"],
     notes: "Private photo vehicle, premium camp suite, dietary brief submitted.",
   },
   {
@@ -218,6 +231,7 @@ let bookings: Booking[] = [
     image: MOCK_ADVENTURES[1]?.image ?? "",
     customerId: "user-001",
     customerName: "Julian Alexander Vance",
+    travelers: ["Julian Alexander Vance", "Maya Vance", "Amani Otieno", "Luca Mercer"],
     notes: "Permit allocation pending final passport verification.",
   },
   {
@@ -234,6 +248,7 @@ let bookings: Booking[] = [
     image: MOCK_ADVENTURES[3]?.image ?? "",
     customerId: "user-001",
     customerName: "Julian Alexander Vance",
+    travelers: ["Julian Alexander Vance", "Maya Vance"],
     notes: "Successfully completed. Editorial asset pack delivered.",
   },
 ];
@@ -466,6 +481,26 @@ export async function getUserProfile() {
 
 export async function getUserMessages() {
   return messages;
+}
+
+export async function createUserMessage(payload: Omit<UserMessage, "id" | "receivedAt" | "preview"> & { preview?: string }) {
+  const message: UserMessage = {
+    ...payload,
+    id: `msg-${Date.now()}`,
+    receivedAt: stampNow(),
+    preview: payload.preview ?? payload.body.slice(0, 88),
+  };
+  messages.unshift(message);
+  return message;
+}
+
+export async function updateUserMessage(id: string, partial: Partial<UserMessage>) {
+  const index = messages.findIndex((message) => message.id === id);
+  if (index === -1) {
+    return undefined;
+  }
+  messages[index] = { ...messages[index], ...partial };
+  return messages[index];
 }
 
 export async function getUserBookings() {
