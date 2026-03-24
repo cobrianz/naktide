@@ -1,10 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import type { Adventure } from "@/api/adventures";
+
+type BookingDraft = {
+  phone: string;
+  partySize: string;
+  leadTraveler: string;
+  companions: string;
+  travelDate: string;
+  notes: string;
+};
 
 function parsePrice(price: string) {
   return Number(price.replace(/[^0-9.]/g, "")) || 0;
@@ -24,8 +33,13 @@ function toInputDate(value: string) {
   return new Date(parsed).toISOString().slice(0, 10);
 }
 
+function draftKey(adventureId: string) {
+  return `naktide-booking-draft:${adventureId}`;
+}
+
 export default function BookingModal({ isOpen, onClose, adventure }: { isOpen: boolean; onClose: () => void; adventure: Adventure }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [phone, setPhone] = useState("");
   const [partySize, setPartySize] = useState("1");
@@ -36,7 +50,38 @@ export default function BookingModal({ isOpen, onClose, adventure }: { isOpen: b
 
   const amount = useMemo(() => parsePrice(adventure.price) * Math.max(Number(partySize) || 1, 1), [adventure.price, partySize]);
 
+  useEffect(() => {
+    if (!isOpen || typeof window === "undefined") return;
+    const raw = window.sessionStorage.getItem(draftKey(adventure.id));
+    if (!raw) return;
+    try {
+      const draft = JSON.parse(raw) as Partial<BookingDraft>;
+      setPhone(draft.phone ?? "");
+      setPartySize(draft.partySize ?? "1");
+      setLeadTraveler(draft.leadTraveler ?? "");
+      setCompanions(draft.companions ?? "");
+      setTravelDate(draft.travelDate ?? toInputDate(adventure.date));
+      setNotes(draft.notes ?? "");
+    } catch {
+      window.sessionStorage.removeItem(draftKey(adventure.id));
+    }
+  }, [adventure.date, adventure.id, isOpen]);
+
   if (!isOpen) return null;
+
+  function currentDraft(): BookingDraft {
+    return { phone, partySize, leadTraveler, companions, travelDate, notes };
+  }
+
+  function persistDraft() {
+    if (typeof window === "undefined") return;
+    window.sessionStorage.setItem(draftKey(adventure.id), JSON.stringify(currentDraft()));
+  }
+
+  function clearDraft() {
+    if (typeof window === "undefined") return;
+    window.sessionStorage.removeItem(draftKey(adventure.id));
+  }
 
   function handleClose() {
     if (isSubmitting) return;
@@ -63,13 +108,16 @@ export default function BookingModal({ isOpen, onClose, adventure }: { isOpen: b
 
       if (!response.ok) {
         if (response.status === 401) {
-          toast.error("Sign in to complete your booking.");
-          router.push("/auth/login");
+          persistDraft();
+          const callback = `${pathname}?book=1`;
+          toast.error("Sign in to continue your booking.");
+          router.push(`/auth/login?callback=${encodeURIComponent(callback)}`);
           return;
         }
         throw new Error(payload.error || "Unable to create booking.");
       }
 
+      clearDraft();
       toast.success(`Booking ${payload.data.reference} created successfully.`);
       onClose();
       router.push(`/dashboard/bookings/${payload.data.id}`);
@@ -84,14 +132,14 @@ export default function BookingModal({ isOpen, onClose, adventure }: { isOpen: b
   return (
     <>
       <div className="fixed inset-0 z-[100] bg-on-surface/40 backdrop-blur-sm" onClick={handleClose} />
-      <div className="fixed left-1/2 top-1/2 z-[110] flex w-full max-w-5xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-2xl md:h-[640px] md:flex-row">
+      <div className="fixed left-1/2 top-1/2 z-[110] flex w-full max-w-6xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-2xl md:h-[700px] md:flex-row">
         <div className="relative hidden w-2/5 overflow-hidden bg-surface-dim md:block">
           <img alt={adventure.altText} className="absolute inset-0 h-full w-full object-cover" src={adventure.image} />
           <div className="absolute inset-0 bg-gradient-to-t from-on-surface/90 via-on-surface/20 to-transparent" />
           <div className="absolute bottom-10 left-10 right-10">
             <span className="mb-2 block font-label text-xs uppercase tracking-[0.15rem] text-primary-fixed">NakTide Booking</span>
             <h1 className="font-headline text-3xl font-black leading-tight tracking-tighter text-white">Reserve {adventure.title}</h1>
-            <p className="mt-3 text-sm leading-6 text-white/75">Real booking records are saved to your traveler dashboard and the admin operations queue.</p>
+            <p className="mt-3 text-sm leading-6 text-white/75">If you need to sign in first, NakTide will bring you straight back here with your booking details restored.</p>
           </div>
         </div>
 

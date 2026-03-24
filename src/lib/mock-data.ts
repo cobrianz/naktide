@@ -221,10 +221,71 @@ export async function bootstrapTravelerAccount(input: { userId: string; name: st
 }
 
 export async function getUserProfile(): Promise<UserProfile> {
+  const session = await requireSession();
   const db = await dataDb();
-  const profile = await db.collection<UserProfile>("userProfiles").findOne({ id: await currentUserId() });
-  if (!profile) throw new Error("Profile not found");
-  return toPlainValue(profile);
+  const profile = await db.collection<UserProfile>("userProfiles").findOne({ id: session.userId });
+  if (profile) return toPlainValue(profile);
+
+  const user = await db.collection<UserRecord>("users").findOne({ id: session.userId });
+  if (!user) throw new Error("Profile not found");
+
+  if (session.role === "admin") {
+    return {
+      id: user.id,
+      name: user.name,
+      firstName: user.name.split(" ")[0] ?? user.name,
+      tier: "Admin",
+      email: user.email,
+      phone: "",
+      location: "Operations",
+      avatar: "https://i.pravatar.cc/200?img=15",
+      memberSince: now().slice(0, 10),
+      rewardPoints: 0,
+      nextJourneyWindow: "Admin access",
+    };
+  }
+
+  const fallback: UserProfile = {
+    id: user.id,
+    name: user.name,
+    firstName: user.name.split(" ")[0] ?? user.name,
+    tier: "Voyager",
+    email: user.email,
+    phone: "",
+    location: "Kenya",
+    avatar: "https://i.pravatar.cc/200?img=32",
+    memberSince: now().slice(0, 10),
+    rewardPoints: 0,
+    nextJourneyWindow: "Planning in progress",
+  };
+  await db.collection<UserProfile>("userProfiles").updateOne({ id: user.id }, { $set: fallback }, { upsert: true });
+  await db.collection<UserSettings & { userId: string }>("userSettings").updateOne(
+    { userId: user.id },
+    {
+      $setOnInsert: {
+        userId: user.id,
+        notifications: { expeditionAlerts: true, paymentUpdates: true, weeklyDigest: false },
+        preferences: { preferredCurrency: "KES", preferredRegion: "East Africa", travelStyle: "Custom safari planning" },
+      },
+    },
+    { upsert: true },
+  );
+
+  const customer = await db.collection<AdminCustomer>("adminCustomers").findOne({ email: user.email.toLowerCase() });
+  if (!customer) {
+    await db.collection<AdminCustomer>("adminCustomers").insertOne({
+      id: id("customer"),
+      name: user.name,
+      email: user.email.toLowerCase(),
+      phone: "",
+      tier: "Voyager",
+      lifetimeValue: 0,
+      activeBookings: 0,
+      lastSeen: now(),
+    });
+  }
+
+  return fallback;
 }
 
 export async function getUserMessages() {
@@ -341,7 +402,7 @@ export async function createBooking(payload: {
   await db.collection<AdminCustomer>("adminCustomers").updateOne(
     { email: profile.email.toLowerCase() },
     {
-      $setOnInsert: { id: id("customer"), email: profile.email.toLowerCase(), activeBookings: 0, lifetimeValue: 0 },
+      $setOnInsert: { id: id("customer"), email: profile.email.toLowerCase() },
       $set: { name: profile.name, phone: payload.phone.trim(), tier: profile.tier, lastSeen: now() },
       $inc: { activeBookings: booking.status === "cancelled" || booking.status === "completed" ? 0 : 1, lifetimeValue: booking.amount },
     },
@@ -436,6 +497,25 @@ export async function deleteAdminCustomer(idValue: string) {
 export async function getInventory(): Promise<InventoryItem[]> {
   const db = await dataDb();
   return toPlainValue(await db.collection<InventoryItem>("inventory").find({}).toArray());
+}
+
+export async function createInventoryItem(payload: Omit<InventoryItem, "id">) {
+  const db = await dataDb();
+  const item: InventoryItem = { ...payload, id: id("inv") };
+  await db.collection<InventoryItem>("inventory").insertOne(item);
+  return item;
+}
+
+export async function updateInventoryItem(idValue: string, partial: Partial<InventoryItem>) {
+  const db = await dataDb();
+  await db.collection<InventoryItem>("inventory").updateOne({ id: idValue }, { $set: partial });
+  return toPlainValue(await db.collection<InventoryItem>("inventory").findOne({ id: idValue }));
+}
+
+export async function deleteInventoryItem(idValue: string) {
+  const db = await dataDb();
+  await db.collection<InventoryItem>("inventory").deleteOne({ id: idValue });
+  return { ok: true };
 }
 
 export async function getAdminSettings(): Promise<AdminSettings> {
@@ -543,7 +623,14 @@ export async function getAdminOverview() {
 
 export async function updateBooking(idValue: string, partial: Partial<Booking>) { const db = await dataDb(); await db.collection<Booking>("bookings").updateOne({ id: idValue }, { $set: partial }); return toPlainValue(await db.collection<Booking>("bookings").findOne({ id: idValue })); }
 export async function deleteBooking(idValue: string) { const db = await dataDb(); await db.collection<Booking>("bookings").deleteOne({ id: idValue }); return { ok: true }; }
-export async function getPublicContentSnapshot(): Promise<PublicContentSnapshot> { return { notifications: await getSiteNotifications(), media: await getMediaAssets(), tours: await getCatalogue() }; }
+export async function getPublicContentSnapshot(): Promise<PublicContentSnapshot> {
+  return {
+    notifications: await getSiteNotifications(),
+    media: await getMediaAssets(),
+    tours: await getCatalogue(),
+    blogs: await getBlogPosts(),
+  };
+}
 export async function getBlogPosts() { const db = await dataDb(); return toPlainValue(await db.collection<BlogPost>("blogPosts").find({}).toArray()); }
 export async function createBlogPost(payload: Omit<BlogPost, "id" | "slug"> & { slug?: string }) { const db = await dataDb(); const item = { ...payload, id: id("blog"), slug: payload.slug ?? payload.title.toLowerCase().replace(/\s+/g, "-") }; await db.collection<BlogPost>("blogPosts").insertOne(item); return item; }
 export async function updateBlogPost(idValue: string, partial: Partial<BlogPost>) { const db = await dataDb(); await db.collection<BlogPost>("blogPosts").updateOne({ id: idValue }, { $set: partial }); return toPlainValue(await db.collection<BlogPost>("blogPosts").findOne({ id: idValue })); }

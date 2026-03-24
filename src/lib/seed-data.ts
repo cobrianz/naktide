@@ -138,6 +138,7 @@ export interface PublicContentSnapshot {
   notifications: SiteNotification[];
   media: MediaAsset[];
   tours: Adventure[];
+  blogs: BlogPost[];
 }
 
 export interface BlogPost {
@@ -766,6 +767,7 @@ export async function getPublicContentSnapshot(): Promise<PublicContentSnapshot>
     notifications: siteNotifications,
     media: mediaAssets,
     tours: catalogue,
+    blogs: blogPosts,
   };
 }
 

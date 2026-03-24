@@ -1,16 +1,28 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+
+function normalizeCallback(value: string | null) {
+  if (!value || !value.startsWith("/")) return "/dashboard";
+  return value;
+}
 
 export default function SignupPage() {
   const router = useRouter();
+  const [callback, setCallback] = useState("/dashboard");
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", location: "Nairobi, Kenya", password: "" });
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    setCallback(normalizeCallback(new URLSearchParams(window.location.search).get("callback")));
+  }, []);
+
+  const loginHref = callback === "/dashboard" ? "/auth/login" : `/auth/login?callback=${encodeURIComponent(callback)}`;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -33,7 +45,7 @@ export default function SignupPage() {
     }
 
     toast.success("Account created successfully");
-    router.push("/dashboard");
+    router.push(callback);
     router.refresh();
   }
 
@@ -50,14 +62,14 @@ export default function SignupPage() {
             <h2 className="mt-3 font-headline text-5xl font-semibold tracking-tight">Start your safari profile.</h2>
             <p className="mt-3 text-sm leading-7 text-on-surface-variant">Your account will be saved to MongoDB and immediately provisioned for the traveler dashboard.</p>
             <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
-              <div className="space-y-2"><label htmlFor="name" className="text-sm font-semibold">Full name</label><input id="name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div>
-              <div className="space-y-2"><label htmlFor="email" className="text-sm font-semibold">Email</label><input id="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div>
-              <div className="space-y-2"><label htmlFor="location" className="text-sm font-semibold">Primary location</label><input id="location" value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div>
-              <div className="space-y-2"><label htmlFor="password" className="text-sm font-semibold">Password</label><div className="relative"><input id="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} type={showPassword ? "text" : "password"} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 pr-12 outline-none focus:border-primary" /><button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant" onClick={() => setShowPassword((value) => !value)}><span className="material-symbols-outlined text-base">{showPassword ? "visibility_off" : "visibility"}</span></button></div></div>
+              <div className="space-y-2"><label htmlFor="name" className="text-sm font-semibold">Full name</label><input id="name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" autoComplete="name" /></div>
+              <div className="space-y-2"><label htmlFor="email" className="text-sm font-semibold">Email</label><input id="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" autoComplete="email" /></div>
+              <div className="space-y-2"><label htmlFor="location" className="text-sm font-semibold">Primary location</label><input id="location" value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" autoComplete="address-level2" /></div>
+              <div className="space-y-2"><label htmlFor="password" className="text-sm font-semibold">Password</label><div className="relative"><input id="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} type={showPassword ? "text" : "password"} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 pr-12 outline-none focus:border-primary" autoComplete="new-password" /><button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant" onClick={() => setShowPassword((value) => !value)}><span className="material-symbols-outlined text-base">{showPassword ? "visibility_off" : "visibility"}</span></button></div></div>
               {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
               <button type="submit" disabled={pending} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white shadow-lg shadow-primary/20 disabled:opacity-70">{pending ? "Creating profile..." : "Create profile"} <span className="material-symbols-outlined text-base">arrow_forward</span></button>
             </form>
-            <p className="mt-6 text-sm text-on-surface-variant">Already have an account? <Link href="/auth/login" className="font-semibold text-primary">Sign in</Link></p>
+            <p className="mt-6 text-sm text-on-surface-variant">Already have an account? <Link href={loginHref} className="font-semibold text-primary">Sign in</Link></p>
           </div>
         </section>
 

@@ -1,13 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 import type { Adventure } from "@/api/adventures";
 import BookingModal from "./BookingModal";
 
 export default function BookingSidebar({ adventure }: { adventure: Adventure }) {
+  const searchParams = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("book") === "1") {
+      setIsModalOpen(true);
+    }
+  }, [searchParams]);
 
   return (
     <>
@@ -16,7 +24,7 @@ export default function BookingSidebar({ adventure }: { adventure: Adventure }) 
           <div className="absolute right-0 top-0 -z-10 h-32 w-32 rounded-bl-full bg-primary/10" />
 
           <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-primary">Secure Your Spot</span>
-          <div className="mb-6 text-4xl font-black text-on-surface font-headline">
+          <div className="mb-6 font-headline text-4xl font-black text-on-surface">
             {adventure.price} <span className="text-sm font-medium text-on-surface-variant">/ person</span>
           </div>
 

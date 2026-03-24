@@ -1,17 +1,29 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+
+function normalizeCallback(value: string | null) {
+  if (!value || !value.startsWith("/")) return "/dashboard";
+  return value;
+}
 
 export default function LoginPage() {
   const router = useRouter();
+  const [callback, setCallback] = useState("/dashboard");
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    setCallback(normalizeCallback(new URLSearchParams(window.location.search).get("callback")));
+  }, []);
+
+  const signupHref = callback === "/dashboard" ? "/auth/signup" : `/auth/signup?callback=${encodeURIComponent(callback)}`;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,7 +46,7 @@ export default function LoginPage() {
     }
 
     toast.success("Signed in successfully");
-    router.push("/dashboard");
+    router.push(callback);
     router.refresh();
   }
 
@@ -65,13 +77,13 @@ export default function LoginPage() {
             <p className="mt-3 text-sm leading-7 text-on-surface-variant">Use your traveler account to review itineraries, payments, departures, and concierge updates.</p>
 
             <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
-              <div className="space-y-2"><label htmlFor="login-id" className="text-sm font-semibold">Email</label><input id="login-id" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="guest@naktide.com" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div>
-              <div className="space-y-2"><div className="flex items-center justify-between"><label htmlFor="password" className="text-sm font-semibold">Password</label><Link href="/auth/forgot-password" className="text-xs font-semibold text-primary">Forgot password?</Link></div><div className="relative"><input id="password" value={password} onChange={(event) => setPassword(event.target.value)} type={showPassword ? "text" : "password"} placeholder="********" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 pr-12 outline-none focus:border-primary" /><button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant" onClick={() => setShowPassword((value) => !value)}><span className="material-symbols-outlined text-base">{showPassword ? "visibility_off" : "visibility"}</span></button></div></div>
+              <div className="space-y-2"><label htmlFor="login-id" className="text-sm font-semibold">Email</label><input id="login-id" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="guest@naktide.com" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" autoComplete="email" /></div>
+              <div className="space-y-2"><div className="flex items-center justify-between"><label htmlFor="password" className="text-sm font-semibold">Password</label><Link href="/auth/forgot-password" className="text-xs font-semibold text-primary">Forgot password?</Link></div><div className="relative"><input id="password" value={password} onChange={(event) => setPassword(event.target.value)} type={showPassword ? "text" : "password"} placeholder="********" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 pr-12 outline-none focus:border-primary" autoComplete="current-password" /><button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant" onClick={() => setShowPassword((value) => !value)}><span className="material-symbols-outlined text-base">{showPassword ? "visibility_off" : "visibility"}</span></button></div></div>
               {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
               <button type="submit" disabled={pending} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white shadow-lg shadow-primary/20 disabled:opacity-70">{pending ? "Signing in..." : "Sign in"} <span className="material-symbols-outlined text-base">arrow_forward</span></button>
             </form>
 
-            <p className="mt-6 text-sm text-on-surface-variant">No account yet? <Link href="/auth/signup" className="font-semibold text-primary">Create one</Link></p>
+            <p className="mt-6 text-sm text-on-surface-variant">No account yet? <Link href={signupHref} className="font-semibold text-primary">Create one</Link></p>
           </div>
         </section>
       </main>
