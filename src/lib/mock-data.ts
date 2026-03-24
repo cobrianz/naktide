@@ -240,6 +240,13 @@ export async function createUserMessage(payload: Omit<UserMessage, "id" | "recei
   return message;
 }
 
+export async function createMessageForUser(userId: string, payload: Omit<UserMessage, "id" | "receivedAt" | "preview"> & { preview?: string }) {
+  const db = await dataDb();
+  const message = { ...payload, userId, id: id("msg"), receivedAt: now(), preview: payload.preview ?? payload.body.slice(0, 88) };
+  await db.collection<UserMessage & { userId: string }>("messages").insertOne(message);
+  return message;
+}
+
 export async function updateUserMessage(idValue: string, partial: Partial<UserMessage>) {
   const db = await dataDb();
   await db.collection<UserMessage & { userId: string }>("messages").updateOne({ id: idValue }, { $set: partial });
@@ -261,6 +268,101 @@ export async function getBookingById(idValue: string) {
   const session = await requireSession();
   if (session.role !== "admin" && booking?.customerId !== session.userId) return undefined;
   return booking ? toPlainValue(booking) : undefined;
+}
+
+function parseBookingAmount(price: string, partySize: number) {
+  const numeric = Number(price.replace(/[^0-9.]/g, "")) || 0;
+  return numeric * Math.max(partySize, 1);
+}
+
+function normalizeTravelDate(value: string) {
+  const parsed = Date.parse(value);
+  if (Number.isNaN(parsed)) return now().slice(0, 10);
+  return new Date(parsed).toISOString().slice(0, 10);
+}
+
+function bookingReference(title: string) {
+  const code = title
+    .split(/\s+/)
+    .map((word) => word[0] ?? "")
+    .join("")
+    .slice(0, 3)
+    .toUpperCase()
+    .padEnd(3, "X");
+  return `NKT-${code}-${String(Date.now()).slice(-4)}`;
+}
+
+export async function createBooking(payload: {
+  adventureId: string;
+  travelDate?: string;
+  partySize: number;
+  travelers: string[];
+  phone: string;
+  notes?: string;
+}) {
+  const session = await requireSession();
+  if (session.role !== "traveler") {
+    throw new Error("Only traveler accounts can create bookings.");
+  }
+
+  const db = await dataDb();
+  const settings = await getAdminSettings();
+  if (!settings.allowPublicBookings) {
+    throw new Error("Public bookings are currently disabled.");
+  }
+
+  const adventure = await db.collection<Adventure>("adventures").findOne({ id: payload.adventureId });
+  if (!adventure || adventure.status !== "upcoming") {
+    throw new Error("That safari is no longer available for booking.");
+  }
+
+  const profile = await getUserProfile();
+  const partySize = Math.max(payload.partySize || 1, 1);
+  const travelerNames = payload.travelers.map((traveler) => traveler.trim()).filter(Boolean);
+  const booking: Booking = {
+    id: id("booking"),
+    reference: bookingReference(adventure.title),
+    adventureId: adventure.id,
+    adventureTitle: adventure.title,
+    location: adventure.location,
+    travelDate: normalizeTravelDate(payload.travelDate || adventure.date),
+    partySize,
+    amount: parseBookingAmount(adventure.price, partySize),
+    currency: "KES",
+    status: settings.requireManualReview ? "pending" : "confirmed",
+    image: adventure.image,
+    customerId: session.userId,
+    customerName: profile.name,
+    travelers: travelerNames.length ? travelerNames : [profile.name],
+    notes: [payload.notes?.trim(), payload.phone.trim() ? `Primary contact: ${payload.phone.trim()}` : ""].filter(Boolean).join("\n\n"),
+  };
+
+  await db.collection<Booking>("bookings").insertOne(booking);
+  await db.collection<AdminCustomer>("adminCustomers").updateOne(
+    { email: profile.email.toLowerCase() },
+    {
+      $setOnInsert: { id: id("customer"), email: profile.email.toLowerCase(), activeBookings: 0, lifetimeValue: 0 },
+      $set: { name: profile.name, phone: payload.phone.trim(), tier: profile.tier, lastSeen: now() },
+      $inc: { activeBookings: booking.status === "cancelled" || booking.status === "completed" ? 0 : 1, lifetimeValue: booking.amount },
+    },
+    { upsert: true },
+  );
+  await db.collection<UserMessage & { userId: string }>("messages").insertOne({
+    id: id("msg"),
+    userId: session.userId,
+    subject: `Booking received: ${adventure.title}`,
+    preview: `Reference ${booking.reference} is now ${booking.status}.`,
+    body: settings.requireManualReview
+      ? `We received your booking request for ${adventure.title}. Reference ${booking.reference} is pending manual review by the Nairobi desk.`
+      : `Your booking for ${adventure.title} is confirmed. Reference ${booking.reference} is ready in your traveler dashboard.`,
+    from: "NakTide Bookings",
+    to: profile.name,
+    receivedAt: now(),
+    status: "unread",
+    bookingId: booking.id,
+  });
+
+  return booking;
 }
 
 export async function getWishlist() {

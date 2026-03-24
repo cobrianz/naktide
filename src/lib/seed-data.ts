@@ -386,22 +386,22 @@ let mediaAssets: MediaAsset[] = [
     id: "media-001",
     title: "Mara dawn hero",
     url: "https://images.pexels.com/photos/1054668/pexels-photo-1054668.jpeg",
-    tag: "maasai-mara",
+    tag: "serengeti-crossing-2024",
     surface: "hero",
   },
   {
     id: "media-002",
     title: "Amboseli elephants",
     url: "https://images.pexels.com/photos/247376/pexels-photo-247376.jpeg",
-    tag: "amboseli",
+    tag: "serengeti-crossing-2024",
     surface: "gallery",
   },
   {
     id: "media-003",
     title: "Samburu editorial frame",
     url: "https://images.pexels.com/photos/1670984/pexels-photo-1670984.jpeg",
-    tag: "samburu",
-    surface: "tour",
+    tag: "okavango-delta-2024",
+    surface: "hero",
   },
 ];
 

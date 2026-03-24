@@ -1,74 +1,34 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 
-const SLIDES = [
-  {
-    image: "https://images.pexels.com/photos/247376/pexels-photo-247376.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    date: "Oct 12, 2024",
-    category: "NakTide Safari",
-    title: "The Serengeti Crossing",
-    id: "serengeti-crossing-2024",
-  },
-  {
-    image: "https://images.pexels.com/photos/3992066/pexels-photo-3992066.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    date: "Aug 20, 2023",
-    category: "Aerial Expedition",
-    title: "The Great Migration Aerial Safari",
-    id: "migration-aerial-2023",
-  },
-  {
-    image: "https://images.pexels.com/photos/1049500/pexels-photo-1049500.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    date: "Dec 20, 2024",
-    category: "Photography Safari",
-    title: "Okavango Delta Photo-Op",
-    id: "okavango-delta-2024",
-  },
-  {
-    image: "https://images.pexels.com/photos/609749/pexels-photo-609749.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    date: "Jan 15, 2024",
-    category: "Photography",
-    title: "Skeleton Coast & Dunes",
-    id: "skeleton-coast-2024",
-  },
-  {
-    image: "https://images.pexels.com/photos/3992516/pexels-photo-3992516.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    date: "Nov 05, 2024",
-    category: "Trekking",
-    title: "Gorillas in the Mist",
-    id: "gorillas-mist-2024",
-  },
-  {
-    image: "https://images.pexels.com/photos/33231637/pexels-photo-33231637.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    date: "Oct 10, 2023",
-    category: "Forest Trek",
-    title: "Bwindi Forest Trek",
-    id: "bwindi-trek-2023",
-  },
-];
+import type { HeroSlide } from "@/lib/public-content";
 
-export default function Hero() {
+export default function Hero({ slides }: { slides: HeroSlide[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    if (slides.length < 2) return;
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
+      setCurrentIndex((prev) => (prev + 1) % slides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
-  const slide = SLIDES[currentIndex];
+  if (!slides.length) return null;
+
+  const slide = slides[currentIndex];
 
   return (
-    <header className="relative w-full h-screen overflow-hidden bg-black">
-      {/* Full-screen crossfading background images */}
+    <header className="relative h-screen w-full overflow-hidden bg-black">
       <AnimatePresence mode="wait">
         <motion.img
-          key={currentIndex}
+          key={slide.image}
           src={slide.image}
           alt={slide.title}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
           initial={{ opacity: 0, scale: 1.04 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
@@ -76,43 +36,32 @@ export default function Hero() {
         />
       </AnimatePresence>
 
-      {/* Very light vignette on the bottom only — keeps images bright */}
-      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-10" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-2/3 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-      {/* Bottom-left text block — like the reference photo */}
       <div className="absolute bottom-16 left-10 z-20 max-w-xl">
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentIndex}
+            key={slide.id}
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
           >
-            {/* Date / Category line */}
-            <p className="text-white/70 text-sm font-medium mb-3 tracking-wide">
+            <p className="mb-3 text-sm font-medium tracking-wide text-white/70">
               {slide.date}
               <span className="mx-3 text-white/30">/</span>
-              <span className="text-white/90 font-semibold">{slide.category}</span>
+              <span className="font-semibold text-white/90">{slide.category}</span>
             </p>
 
-            {/* Big Title */}
-            <h1 className="font-headline font-black text-white text-5xl md:text-7xl leading-[1] tracking-tighter mb-6">
+            <h1 className="mb-6 font-headline text-5xl font-black leading-[1] tracking-tighter text-white md:text-7xl">
               {slide.title}
             </h1>
 
-            {/* Updated CTAs — bottom left */}
-            <div className="flex items-center gap-6 mt-8">
-              <Link
-                href={`/adventures/${slide.id}`}
-                className="text-white text-xs font-black tracking-[0.2em] bg-primary px-8 py-4 rounded-full hover:bg-primary-container transition-all shadow-lg active:scale-95"
-              >
+            <div className="mt-8 flex items-center gap-6">
+              <Link href={`/adventures/${slide.id}`} className="rounded-full bg-primary px-8 py-4 text-xs font-black tracking-[0.2em] text-white shadow-lg transition-all hover:bg-primary-container active:scale-95">
                 Upcoming Tours
               </Link>
-              <Link
-                href="/gallery"
-                className="text-white text-xs font-black tracking-[0.2em] border-b-2 border-white/20 pb-1 hover:border-primary transition-all"
-              >
+              <Link href="/gallery" className="border-b-2 border-white/20 pb-1 text-xs font-black tracking-[0.2em] text-white transition-all hover:border-primary">
                 Gallery
               </Link>
             </div>
@@ -120,21 +69,16 @@ export default function Hero() {
         </AnimatePresence>
       </div>
 
-      {/* Slide indicator dots — bottom right */}
       <div className="absolute bottom-16 right-10 z-20 flex flex-col items-center gap-2">
-        {SLIDES.map((_, i) => (
+        {slides.map((item, index) => (
           <button
-            key={i}
-            onClick={() => setCurrentIndex(i)}
-            className={`w-1 rounded-full transition-all duration-500 ${
-              i === currentIndex ? "h-8 bg-white" : "h-2 bg-white/30 hover:bg-white/60"
-            }`}
-            aria-label={`Go to slide ${i + 1}`}
+            key={item.id + item.image}
+            onClick={() => setCurrentIndex(index)}
+            className={`w-1 rounded-full transition-all duration-500 ${index === currentIndex ? "h-8 bg-white" : "h-2 bg-white/30 hover:bg-white/60"}`}
+            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
-
-
     </header>
   );
 }

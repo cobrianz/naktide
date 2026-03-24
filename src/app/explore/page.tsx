@@ -1,25 +1,11 @@
-﻿import React from "react";
 import Link from "next/link";
 
 import Navbar from "@/components/landing/Navbar";
 import Filters from "@/components/landing/Filters";
 import AdventureGrid from "@/components/landing/AdventureGrid";
 import Footer from "@/components/landing/Footer";
-
-const routeSignals = [
-  {
-    title: "Classic Kenya",
-    body: "Mara, Amboseli, Laikipia, and Samburu shaped for first-time and return safari travelers.",
-  },
-  {
-    title: "Regional extensions",
-    body: "Rwanda, Uganda, Botswana, Namibia, and Tanzania folded into Kenya-led itineraries without losing pacing.",
-  },
-  {
-    title: "Photography routes",
-    body: "Vehicle setup, camp positioning, and light-aware movement designed for image-making rather than volume.",
-  },
-];
+import { getBlogPosts, getCatalogue, getMediaAssets } from "@/lib/mock-data";
+import { getHeroSlides } from "@/lib/public-content";
 
 const planningSteps = [
   "Choose your safari month and wildlife priority",
@@ -27,65 +13,48 @@ const planningSteps = [
   "Refine camps, transfers, and timing with the Nairobi desk",
 ];
 
-export default function ExplorePage() {
+export default async function ExplorePage() {
+  const [tours, blogs, media] = await Promise.all([getCatalogue(), getBlogPosts(), getMediaAssets()]);
+  const upcomingTours = tours.filter((tour) => tour.status === "upcoming");
+  const heroSlide = getHeroSlides(tours, media, 1)[0] ?? upcomingTours[0];
+  const routeSignals = upcomingTours.slice(0, 3).map((tour) => ({ title: tour.title, body: tour.overview }));
+  const uniqueLocations = new Set(upcomingTours.map((tour) => tour.location)).size;
+
   return (
     <div className="flex min-h-screen flex-col bg-background font-body text-on-background">
       <Navbar />
 
       <section className="relative flex min-h-[720px] w-full items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0 bg-black">
-          <img
-            src="https://images.pexels.com/photos/1054218/pexels-photo-1054218.jpeg?auto=compress&cs=tinysrgb&w=1920"
-            alt="Explore the wild"
-            className="absolute inset-0 h-full w-full object-cover opacity-80"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-black/40 to-black/20"></div>
+          <img src={heroSlide?.image || upcomingTours[0]?.image} alt={heroSlide?.title || "Explore the wild"} className="absolute inset-0 h-full w-full object-cover opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-black/40 to-black/20" />
         </div>
         <div className="relative z-10 mx-auto grid w-full max-w-[1500px] gap-16 px-6 pt-28 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
           <div className="text-left">
-            <span className="mb-4 block text-xs font-bold uppercase tracking-[0.3em] text-primary-fixed drop-shadow-sm">
-              Discover your path
-            </span>
-            <h1 className="font-headline text-6xl font-black tracking-tighter text-white drop-shadow-lg md:text-7xl xl:text-[6.5rem]">
-              Explore Kenya
-              <br />
-              and Beyond.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/82">
-              Built from Nairobi, NakTide designs safari routes that feel precise rather than crowded. Explore migration safaris, gorilla permits, private conservancies, and archive-led expeditions with room for real field time.
-            </p>
+            <span className="mb-4 block text-xs font-bold uppercase tracking-[0.3em] text-primary-fixed drop-shadow-sm">Discover your path</span>
+            <h1 className="font-headline text-6xl font-black tracking-tighter text-white drop-shadow-lg md:text-7xl xl:text-[6.5rem]">Explore Kenya<br />and Beyond.</h1>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/82">Built from Nairobi, NakTide designs safari routes that feel precise rather than crowded. Explore migration safaris, gorilla permits, private conservancies, and archive-led expeditions with room for real field time.</p>
             <div className="mt-10 grid max-w-2xl gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur">
-                <p className="text-3xl font-black text-white">18</p>
-                <p className="mt-2 text-xs uppercase tracking-[0.25em] text-white/70">Curated routes</p>
-              </div>
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur">
-                <p className="text-3xl font-black text-white">9</p>
-                <p className="mt-2 text-xs uppercase tracking-[0.25em] text-white/70">East Africa circuits</p>
-              </div>
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur">
-                <p className="text-3xl font-black text-white">24/7</p>
-                <p className="mt-2 text-xs uppercase tracking-[0.25em] text-white/70">Concierge cover</p>
-              </div>
+              <div className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur"><p className="text-3xl font-black text-white">{upcomingTours.length}</p><p className="mt-2 text-xs uppercase tracking-[0.25em] text-white/70">Curated routes</p></div>
+              <div className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur"><p className="text-3xl font-black text-white">{uniqueLocations}</p><p className="mt-2 text-xs uppercase tracking-[0.25em] text-white/70">Active regions</p></div>
+              <div className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur"><p className="text-3xl font-black text-white">{blogs.length}</p><p className="mt-2 text-xs uppercase tracking-[0.25em] text-white/70">Planning briefs</p></div>
             </div>
           </div>
           <div className="grid gap-4 self-end sm:grid-cols-2">
             <div className="rounded-[1.75rem] border border-white/15 bg-white/10 p-6 backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.28em] text-white/65">Safari intelligence</p>
-              <p className="mt-4 text-2xl font-black text-white">Migration, conservancy, fly-camp, and photography itineraries shaped from Kenya first.</p>
+              <p className="text-xs uppercase tracking-[0.28em] text-white/65">Featured route</p>
+              <p className="mt-4 text-2xl font-black text-white">{heroSlide?.title || upcomingTours[0]?.title}</p>
             </div>
             <div className="rounded-[1.75rem] border border-white/15 bg-[#d29145]/20 p-6 backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.28em] text-white/65">Routing logic</p>
-              <p className="mt-4 text-lg font-semibold text-white">Each itinerary is planned around light, wildlife behavior, and minimal dead transfer time.</p>
+              <p className="text-xs uppercase tracking-[0.28em] text-white/65">Current focus</p>
+              <p className="mt-4 text-lg font-semibold text-white">{heroSlide?.category || upcomingTours[0]?.category} itineraries curated directly from the admin operations desk.</p>
             </div>
           </div>
         </div>
       </section>
 
       <main className="flex-1 pb-0">
-        <div className="relative z-20 mb-24 -mt-14">
-          <Filters />
-        </div>
+        <div className="relative z-20 mb-24 -mt-14"><Filters /></div>
 
         <section className="mx-auto max-w-[1500px] px-6">
           <div className="grid gap-6 md:grid-cols-3">
@@ -131,9 +100,7 @@ export default function ExplorePage() {
                 <li className="flex items-center gap-3"><span className="material-symbols-outlined text-secondary">check_circle</span> <span className="font-bold text-sm">Deep community integration</span></li>
               </ul>
             </div>
-            <div className="relative aspect-video overflow-hidden rounded-[1.75rem] shadow-lg">
-              <img src="https://images.pexels.com/photos/1054218/pexels-photo-1054218.jpeg" className="h-full w-full object-cover" alt="Expertise" />
-            </div>
+            <div className="relative aspect-video overflow-hidden rounded-[1.75rem] shadow-lg"><img src={heroSlide?.image || upcomingTours[0]?.image} className="h-full w-full object-cover" alt={heroSlide?.title || "Expertise"} /></div>
           </div>
         </section>
 

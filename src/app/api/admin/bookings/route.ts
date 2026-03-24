@@ -1,4 +1,4 @@
-﻿import { createUserMessage, deleteBooking, getUserBookings, updateBooking } from "@/lib/mock-data";
+import { createMessageForUser, deleteBooking, getUserBookings, updateBooking } from "@/lib/mock-data";
 
 export async function GET() {
   const bookings = await getUserBookings();
@@ -10,7 +10,7 @@ export async function PATCH(request: Request) {
   const booking = await updateBooking(body.id, body);
 
   if (body.messageBody && booking) {
-    await createUserMessage({
+    await createMessageForUser(booking.customerId, {
       subject: body.messageSubject ?? `Update for ${booking.adventureTitle}`,
       body: body.messageBody,
       from: "Admin Operations",

@@ -1,6 +1,9 @@
 "use client";
+
+import Link from "next/link";
 import React, { useState } from "react";
-import { Adventure } from "@/api/adventures";
+
+import type { Adventure } from "@/api/adventures";
 import BookingModal from "./BookingModal";
 
 export default function BookingSidebar({ adventure }: { adventure: Adventure }) {
@@ -8,32 +11,32 @@ export default function BookingSidebar({ adventure }: { adventure: Adventure }) 
 
   return (
     <>
-      <div className="md:col-span-4 h-fit sticky top-32 space-y-8">
-        <div className="bg-surface-container-low rounded-3xl p-8 border border-outline-variant/30 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full -z-10"></div>
-          
-          <span className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Secure Your Spot</span>
-          <div className="text-4xl font-headline font-black text-on-surface mb-6">
-            {adventure.price} <span className="text-sm text-on-surface-variant font-medium">/ person</span>
+      <div className="sticky top-32 h-fit space-y-8 md:col-span-4">
+        <div className="relative overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-low p-8 shadow-sm">
+          <div className="absolute right-0 top-0 -z-10 h-32 w-32 rounded-bl-full bg-primary/10" />
+
+          <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-primary">Secure Your Spot</span>
+          <div className="mb-6 text-4xl font-black text-on-surface font-headline">
+            {adventure.price} <span className="text-sm font-medium text-on-surface-variant">/ person</span>
           </div>
-          
-          <ul className="space-y-4 mb-8">
+
+          <ul className="mb-8 space-y-4">
             <li className="flex items-start gap-4">
-              <span className="material-symbols-outlined text-secondary mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>calendar_today</span>
+              <span className="material-symbols-outlined mt-0.5 text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>calendar_today</span>
               <div>
                 <span className="block text-sm font-bold text-on-surface">Departs</span>
                 <span className="text-sm text-on-surface-variant">{adventure.date}</span>
               </div>
             </li>
             <li className="flex items-start gap-4">
-              <span className="material-symbols-outlined text-secondary mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
+              <span className="material-symbols-outlined mt-0.5 text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
               <div>
                 <span className="block text-sm font-bold text-on-surface">Group Limit</span>
                 <span className="text-sm text-on-surface-variant">{adventure.groupSize}</span>
               </div>
             </li>
             <li className="flex items-start gap-4">
-              <span className="material-symbols-outlined text-secondary mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+              <span className="material-symbols-outlined mt-0.5 text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
               <div>
                 <span className="block text-sm font-bold text-on-surface">Availability</span>
                 <span className="text-sm font-bold text-primary">{adventure.slots}</span>
@@ -41,30 +44,30 @@ export default function BookingSidebar({ adventure }: { adventure: Adventure }) 
             </li>
           </ul>
 
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
-            className="w-full bg-primary text-white font-bold py-4 rounded-xl hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors shadow-lg shadow-primary/20 mb-4"
+            className="mb-4 w-full rounded-xl bg-primary py-4 font-bold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary-fixed hover:text-on-primary-fixed"
+            type="button"
           >
-            Confirm & Pay
+            Book this safari
           </button>
-          <button className="w-full border-2 border-outline-variant/30 text-on-surface font-bold py-4 rounded-xl hover:bg-surface-container transition-colors">
-            Ask a Question
-          </button>
+          <Link href="/contact" className="inline-flex w-full items-center justify-center rounded-xl border-2 border-outline-variant/30 py-4 font-bold text-on-surface transition-colors hover:bg-surface-container">
+            Ask a question
+          </Link>
 
-          <p className="text-center text-[10px] uppercase tracking-widest text-on-surface-variant mt-6">
-            No charge right now. Payment held securely.
+          <p className="mt-6 text-center text-[10px] uppercase tracking-widest text-on-surface-variant">
+            Booking requests are saved directly to your traveler dashboard.
           </p>
         </div>
 
-        {/* Small Trust Banner */}
-        <div className="bg-surface-container-highest rounded-2xl p-6 flex items-center gap-4 border border-outline-variant/30">
-          <span className="material-symbols-outlined text-secondary text-3xl">verified_user</span>
-          <p className="text-xs text-on-surface-variant font-medium leading-relaxed">
+        <div className="flex items-center gap-4 rounded-2xl border border-outline-variant/30 bg-surface-container-highest p-6">
+          <span className="material-symbols-outlined text-3xl text-secondary">verified_user</span>
+          <p className="text-xs font-medium leading-relaxed text-on-surface-variant">
             All expeditions are covered by our Savannah-First Guarantee. Full refunds up to 60 days before travel.
           </p>
         </div>
       </div>
-      
+
       <BookingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} adventure={adventure} />
     </>
   );
