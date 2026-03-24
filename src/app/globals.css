@@ -101,10 +101,10 @@
   --color-secondary: #2a6b2c;
   --color-background: #fafaf5;
 
-  --font-jost: 'Jost', sans-serif;
-  --font-headline: 'Jost', sans-serif;
-  --font-body: 'Jost', sans-serif;
-  --font-label: 'Jost', sans-serif;
+  --font-jost: var(--font-sans);
+  --font-headline: var(--font-sans);
+  --font-body: var(--font-sans);
+  --font-label: var(--font-sans);
 }
 
 :root {

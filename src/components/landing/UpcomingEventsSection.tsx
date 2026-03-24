@@ -18,7 +18,7 @@ export default function UpcomingEventsSection() {
             OUR UPCOMING EVENTS <span className="text-primary-fixed block lg:inline mt-2 lg:mt-0">SERENGETI CROSSING</span>
           </h3>
           <p className="text-on-surface-variant text-sm max-w-sm mb-12 leading-relaxed">
-            Witness one of nature's greatest spectacles. The Great Migration sees millions of wildebeest and zebra brave the treacherous Mara River.
+            Witness one of nature&apos;s greatest spectacles. The Great Migration sees millions of wildebeest and zebra brave the treacherous Mara River.
           </p>
           <p className="font-bold text-xs uppercase tracking-widest mb-12 text-on-background">
             October 12, 2024. Join us!!

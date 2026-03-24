@@ -5,7 +5,7 @@ export default function TestimonialSection() {
     <section className="bg-surface-container-high py-24 sm:py-32 relative overflow-hidden">
       {/* Decorative quotes background */}
       <span className="absolute -top-10 -left-10 text-[200px] text-outline-variant/10 font-serif leading-none select-none">
-        "
+        &quot;
       </span>
 
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
@@ -18,7 +18,7 @@ export default function TestimonialSection() {
         </div>
         
         <blockquote className="text-3xl md:text-5xl font-headline font-medium text-on-background leading-tight mb-10">
-          "The most profound experience of our lives. NakTide didn't just show us the wildlife; they immersed us in the timeless rhythm of the savannah."
+          &quot;The most profound experience of our lives. NakTide didn&apos;t just show us the wildlife; they immersed us in the timeless rhythm of the savannah.&quot;
         </blockquote>
         
         <div className="flex flex-col items-center">

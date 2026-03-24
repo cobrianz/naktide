@@ -1,175 +1,148 @@
-import React from "react";
+﻿import React from "react";
 import Link from "next/link";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 import { getPastAdventures } from "@/api/adventures";
-import FeaturesSection from "@/components/landing/FeaturesSection";
-import EditorialSection from "@/components/landing/EditorialSection";
 
 export default async function PastAdventuresPage() {
   const adventures = await getPastAdventures();
 
   return (
-    <div className="bg-surface text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed min-h-screen">
+    <div className="min-h-screen bg-surface font-body text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
       <Navbar />
-      
-      <main className="pt-32 pb-0 px-0 md:px-0">
-        <div className="px-6 md:px-12 max-w-7xl mx-auto">
-          {/* Breadcrumbs */}
-          <nav className="flex items-center space-x-2 text-xs uppercase tracking-widest text-on-surface-variant mb-12 font-bold">
-            <Link className="hover:text-primary transition-colors" href="/">Home</Link>
+
+      <main className="px-0 pb-0 pt-32">
+        <div className="mx-auto max-w-[1500px] px-6 md:px-12">
+          <nav className="mb-12 flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+            <Link className="transition-colors hover:text-primary" href="/">Home</Link>
             <span className="material-symbols-outlined text-[10px]">chevron_right</span>
-            <span className="text-on-surface font-black">Past Adventures</span>
+            <span className="font-black text-on-surface">Past Adventures</span>
           </nav>
 
-          {/* Header Section (Editorial Layout) */}
-          <header className="mb-20 grid md:grid-cols-2 gap-8 items-end">
+          <header className="mb-20 grid items-end gap-8 md:grid-cols-2">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary block mb-4">
+              <span className="mb-4 block text-xs font-bold uppercase tracking-[0.2em] text-primary">
                 The Editorial Explorer Series
               </span>
-              <h1 className="font-headline text-5xl md:text-7xl font-extrabold tracking-tighter text-on-surface leading-none">
+              <h1 className="font-headline text-6xl font-extrabold leading-none tracking-tighter text-on-surface md:text-8xl">
                 Past <br /> <span className="text-primary-container">Adventures.</span>
               </h1>
             </div>
-            <div className="md:max-w-md pb-2">
-              <p className="text-on-surface-variant text-lg leading-relaxed italic">
-                "A collection of footprints left across the savannah, echoes of journeys that shaped our perspective of the wild."
+            <div className="pb-2 md:max-w-lg">
+              <p className="text-lg italic leading-relaxed text-on-surface-variant">
+                &quot;A collection of footprints left across the savannah, echoes of journeys that shaped our perspective of the wild.&quot;
               </p>
             </div>
           </header>
 
-          {/* Filter/Search Bar (Minimalist) */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16 border-b border-outline-variant/30 pb-8">
+          <div className="mb-16 flex flex-col items-start justify-between gap-6 border-b border-outline-variant/30 pb-8 md:flex-row md:items-center">
             <div className="flex gap-4">
-              <button className="bg-surface-container-highest px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider text-on-surface-variant hover:bg-surface-dim transition-colors">
-                Filter By Year
+              <button className="rounded-full bg-surface-container-highest px-4 py-2 text-xs font-bold uppercase tracking-wider text-on-surface-variant transition-colors hover:bg-surface-dim">
+                Filter by year
               </button>
-              <button className="bg-surface-container-highest px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider text-on-surface-variant hover:bg-surface-dim transition-colors">
+              <button className="rounded-full bg-surface-container-highest px-4 py-2 text-xs font-bold uppercase tracking-wider text-on-surface-variant transition-colors hover:bg-surface-dim">
                 Region
               </button>
             </div>
-            <div className="text-on-surface-variant text-sm font-medium">
-              Showing <span className="text-on-surface font-bold">{adventures.length} archived expeditions</span>
+            <div className="text-sm font-medium text-on-surface-variant">
+              Showing <span className="font-bold text-on-surface">{adventures.length} archived expeditions</span>
             </div>
           </div>
 
-          {/* Adventures Grid (Bento Style & Asymmetric) */}
-          <section className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-24">
-            
-            {/* Card 1 (Large Feature) */}
+          <section className="mb-24 grid grid-cols-1 gap-8 md:grid-cols-12">
             {adventures[0] && (
-              <Link href={`/adventures/${adventures[0].id}`} className="block h-full md:col-span-8 group relative bg-surface-container-lowest overflow-hidden rounded-xl border border-outline-variant/30 hover:border-primary transition-colors">
-                <div className="aspect-[16/9] overflow-hidden">
-                  <img 
-                    alt={adventures[0].altText} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                    src={adventures[0].image}
-                  />
+              <Link href={`/adventures/${adventures[0].id}`} className="group relative block h-full overflow-hidden rounded-[1.75rem] border border-outline-variant/30 bg-surface-container-lowest transition-colors hover:border-primary md:col-span-8">
+                <div className="aspect-[16/10] overflow-hidden">
+                  <img alt={adventures[0].altText} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" src={adventures[0].image} />
                 </div>
-                <div className="absolute top-4 right-4 bg-secondary-container text-on-secondary-container px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                <div className="absolute right-4 top-4 rounded-full bg-secondary-container px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-on-secondary-container">
                   Completed
                 </div>
-                <div className="p-8 grid md:grid-cols-3 gap-6 items-start">
+                <div className="grid items-start gap-6 p-8 md:grid-cols-3">
                   <div className="md:col-span-2">
-                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-2">
-                      {adventures[0].location} · {adventures[0].date}
+                    <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                      {adventures[0].location} | {adventures[0].date}
                     </div>
-                    <h3 className="font-headline text-3xl font-bold text-on-surface mb-4">
+                    <h3 className="mb-4 font-headline text-4xl font-bold text-on-surface">
                       {adventures[0].title}
                     </h3>
-                    <p className="text-on-surface-variant text-sm max-w-md">
+                    <p className="max-w-2xl text-base text-on-surface-variant">
                       {adventures[0].overview}
                     </p>
                   </div>
-                  <div className="flex flex-col items-start md:items-end justify-between h-full space-y-4">
+                  <div className="flex h-full flex-col justify-between space-y-4 md:items-end">
                     <div className="text-right">
-                      <span className="block text-[10px] uppercase text-on-surface-variant tracking-widest">Final Price</span>
+                      <span className="block text-[10px] uppercase tracking-widest text-on-surface-variant">Final price</span>
                       <span className="text-2xl font-black text-on-surface">{adventures[0].price}</span>
                     </div>
-                    <span className="w-full md:w-auto border-b-2 border-primary text-on-surface font-bold text-sm py-1 transition-all group-hover:pr-4">
-                      View Details →
+                    <span className="w-full border-b-2 border-primary py-1 text-sm font-bold text-on-surface transition-all group-hover:pr-4 md:w-auto">
+                      View details -&gt;
                     </span>
                   </div>
                 </div>
               </Link>
             )}
 
-            {/* Card 2 (Standard) */}
             {adventures[1] && (
-              <Link href={`/adventures/${adventures[1].id}`} className="block h-full md:col-span-4 group relative bg-surface-container-lowest overflow-hidden rounded-xl self-start border border-outline-variant/30 hover:border-primary transition-colors">
+              <Link href={`/adventures/${adventures[1].id}`} className="group relative block h-full self-start overflow-hidden rounded-[1.75rem] border border-outline-variant/30 bg-surface-container-lowest transition-colors hover:border-primary md:col-span-4">
                 <div className="aspect-square overflow-hidden">
-                  <img 
-                    alt={adventures[1].altText} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                    src={adventures[1].image}
-                  />
+                  <img alt={adventures[1].altText} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" src={adventures[1].image} />
                 </div>
-                <div className="absolute top-4 right-4 bg-secondary-container text-on-secondary-container px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                <div className="absolute right-4 top-4 rounded-full bg-secondary-container px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-on-secondary-container">
                   Completed
                 </div>
                 <div className="p-6">
-                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-2">
-                    {adventures[1].location} · {adventures[1].date}
+                  <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                    {adventures[1].location} | {adventures[1].date}
                   </div>
-                  <h3 className="font-headline text-xl font-bold text-on-surface mb-3">{adventures[1].title}</h3>
-                  <div className="flex justify-between items-end">
+                  <h3 className="mb-3 font-headline text-2xl font-bold text-on-surface">{adventures[1].title}</h3>
+                  <div className="flex items-end justify-between">
                     <span className="text-xl font-black text-on-surface">{adventures[1].price}</span>
-                    <span className="text-primary font-bold text-xs uppercase tracking-widest group-hover:underline">View Details</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary group-hover:underline">View details</span>
                   </div>
                 </div>
               </Link>
             )}
 
-            {/* Card 3 (Standard) */}
             {adventures[2] && (
-              <Link href={`/adventures/${adventures[2].id}`} className="block h-full md:col-span-4 group relative bg-surface-container-lowest overflow-hidden rounded-xl border border-outline-variant/30 hover:border-primary transition-colors">
-                <div className="aspect-[4/5] overflow-hidden">
-                  <img 
-                    alt={adventures[2].altText} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                    src={adventures[2].image}
-                  />
+              <Link href={`/adventures/${adventures[2].id}`} className="group relative block h-full overflow-hidden rounded-[1.75rem] border border-outline-variant/30 bg-surface-container-lowest transition-colors hover:border-primary md:col-span-4">
+                <div className="aspect-[4/5] min-h-[460px] overflow-hidden">
+                  <img alt={adventures[2].altText} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" src={adventures[2].image} />
                 </div>
-                <div className="absolute top-4 right-4 bg-secondary-container text-on-secondary-container px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                <div className="absolute right-4 top-4 rounded-full bg-secondary-container px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-on-secondary-container">
                   Completed
                 </div>
                 <div className="p-6">
-                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-2">
-                    {adventures[2].location} · {adventures[2].date}
+                  <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                    {adventures[2].location} | {adventures[2].date}
                   </div>
-                  <h3 className="font-headline text-xl font-bold text-on-surface mb-3">{adventures[2].title}</h3>
-                  <div className="flex justify-between items-end">
+                  <h3 className="mb-3 font-headline text-2xl font-bold text-on-surface">{adventures[2].title}</h3>
+                  <div className="flex items-end justify-between">
                     <span className="text-xl font-black text-on-surface">{adventures[2].price}</span>
-                    <span className="text-primary font-bold text-xs uppercase tracking-widest group-hover:underline">View Details</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary group-hover:underline">View details</span>
                   </div>
                 </div>
               </Link>
             )}
 
-            {/* Card 4 (Medium Horizontal) */}
             {adventures[3] && (
-              <Link href={`/adventures/${adventures[3].id}`} className="block h-full md:col-span-8 group relative bg-surface-container-lowest overflow-hidden rounded-xl border border-outline-variant/30 hover:border-primary transition-colors">
-                <div className="flex flex-col md:flex-row h-full">
-                  <div className="md:w-1/2 aspect-square md:aspect-auto overflow-hidden">
-                    <img 
-                      alt={adventures[3].altText} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                      src={adventures[3].image}
-                    />
+              <Link href={`/adventures/${adventures[3].id}`} className="group relative block h-full overflow-hidden rounded-[1.75rem] border border-outline-variant/30 bg-surface-container-lowest transition-colors hover:border-primary md:col-span-8">
+                <div className="flex h-full flex-col md:flex-row">
+                  <div className="aspect-square overflow-hidden md:w-1/2 md:aspect-auto">
+                    <img alt={adventures[3].altText} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" src={adventures[3].image} />
                   </div>
-                  <div className="md:w-1/2 p-8 flex flex-col justify-center">
-                    <div className="bg-secondary-container text-on-secondary-container w-fit px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">Completed</div>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-2">
-                      {adventures[3].location} · {adventures[3].date}
+                  <div className="flex flex-col justify-center p-8 md:w-1/2">
+                    <div className="mb-4 w-fit rounded-full bg-secondary-container px-3 py-1 text-[10px] font-black uppercase tracking-widest text-on-secondary-container">Completed</div>
+                    <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                      {adventures[3].location} | {adventures[3].date}
                     </div>
-                    <h3 className="font-headline text-2xl font-bold text-on-surface mb-4">{adventures[3].title}</h3>
-                    <p className="text-on-surface-variant text-sm mb-6 line-clamp-2">
+                    <h3 className="mb-4 font-headline text-3xl font-bold text-on-surface">{adventures[3].title}</h3>
+                    <p className="mb-6 line-clamp-3 text-base text-on-surface-variant">
                       {adventures[3].overview}
                     </p>
-                    <div className="mt-auto flex justify-between items-center">
+                    <div className="mt-auto flex items-center justify-between">
                       <span className="text-2xl font-black text-on-surface">{adventures[3].price}</span>
-                      <div className="bg-surface-container-high p-2 rounded-full group-hover:bg-primary group-hover:text-white transition-colors">
+                      <div className="rounded-full bg-surface-container-high p-2 transition-colors group-hover:bg-primary group-hover:text-white">
                         <span className="material-symbols-outlined">arrow_forward</span>
                       </div>
                     </div>
@@ -179,22 +152,21 @@ export default async function PastAdventuresPage() {
             )}
           </section>
         </div>
-        
-        {/* Archival Statistics Section */}
-        <section className="py-24 bg-surface-container-highest px-6 mt-12 rounded-t-[3rem]">
-          <div className="max-w-7xl mx-auto text-center border-t border-b border-outline-variant/30 py-16">
-            <span className="text-secondary font-bold uppercase tracking-widest text-xs mb-4 block">Our Legacy</span>
-            <h2 className="text-4xl font-headline font-black mb-16 text-on-surface">By The Numbers</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-              <div><div className="text-5xl md:text-7xl font-black text-primary mb-4 drop-shadow-sm">120+</div><div className="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant">Expeditions</div></div>
-              <div><div className="text-5xl md:text-7xl font-black text-primary mb-4 drop-shadow-sm">15</div><div className="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant">Countries</div></div>
-              <div><div className="text-5xl md:text-7xl font-black text-primary mb-4 drop-shadow-sm">10k</div><div className="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant">Encounters</div></div>
-              <div><div className="text-5xl md:text-7xl font-black text-primary mb-4 drop-shadow-sm">100%</div><div className="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant">Safe Returns</div></div>
+
+        <section className="mt-12 rounded-t-[3rem] bg-surface-container-highest px-6 py-24">
+          <div className="mx-auto max-w-[1500px] border-b border-t border-outline-variant/30 py-16 text-center">
+            <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-secondary">Our legacy</span>
+            <h2 className="mb-16 font-headline text-4xl font-black text-on-surface">By The Numbers</h2>
+            <div className="grid grid-cols-2 gap-12 md:grid-cols-4">
+              <div><div className="mb-4 text-5xl font-black text-primary drop-shadow-sm md:text-7xl">120+</div><div className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">Expeditions</div></div>
+              <div><div className="mb-4 text-5xl font-black text-primary drop-shadow-sm md:text-7xl">15</div><div className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">Countries</div></div>
+              <div><div className="mb-4 text-5xl font-black text-primary drop-shadow-sm md:text-7xl">10k</div><div className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">Encounters</div></div>
+              <div><div className="mb-4 text-5xl font-black text-primary drop-shadow-sm md:text-7xl">100%</div><div className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">Safe Returns</div></div>
             </div>
           </div>
         </section>
       </main>
-      
+
       <Footer />
     </div>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -11,7 +11,7 @@ export default function Footer() {
               NakTide
             </div>
             <p className="text-on-surface-variant leading-relaxed">
-              Curating the world's most intentional wilderness experiences since 2012. Join the
+              Curating the world&apos;s most intentional wilderness experiences since 2012. Join the
               expedition.
             </p>
           </div>
@@ -20,13 +20,13 @@ export default function Footer() {
               <h4 className="text-on-background font-bold uppercase tracking-widest text-xs">
                 Explore
               </h4>
-              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">
+              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="/explore">
                 Destinations
               </Link>
-              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">
+              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="/sustainability">
                 Sustainability
               </Link>
-              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">
+              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="/journal">
                 Journal
               </Link>
             </div>
@@ -34,24 +34,24 @@ export default function Footer() {
               <h4 className="text-on-background font-bold uppercase tracking-widest text-xs">
                 Company
               </h4>
-              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">
+              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="/contact">
                 Contact Us
               </Link>
-              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">
+              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="/careers">
                 Careers
               </Link>
-              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">
-                Travel Insurance
+              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="/about">
+                About NakTide
               </Link>
             </div>
             <div className="flex flex-col gap-4">
               <h4 className="text-on-background font-bold uppercase tracking-widest text-xs">
                 Legal
               </h4>
-              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">
+              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="/legal/terms">
                 Terms of Service
               </Link>
-              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">
+              <Link className="text-on-surface-variant text-sm hover:text-primary transition-colors" href="/legal/privacy">
                 Privacy Policy
               </Link>
             </div>
@@ -70,7 +70,7 @@ export default function Footer() {
             </Link>
           </div>
           <div className="text-on-surface-variant text-sm font-medium tracking-wide">
-            © 2024 NakTide Expeditions. All rights reserved.
+            Copyright 2024 NakTide Expeditions. All rights reserved.
           </div>
         </div>
       </div>

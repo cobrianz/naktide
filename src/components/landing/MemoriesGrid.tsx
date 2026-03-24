@@ -40,7 +40,7 @@ export default function MemoriesGrid() {
               Archived Memories
             </span>
             <h2 className="text-4xl md:text-6xl font-headline font-black text-on-surface tracking-tighter leading-[0.9] mb-8">
-              We don't just run tours;<br />
+              We don&apos;t just run tours;<br />
               <span className="text-primary italic">we forge legendary experiences.</span>
             </h2>
             <p className="text-on-surface-variant text-lg leading-relaxed max-w-xl">

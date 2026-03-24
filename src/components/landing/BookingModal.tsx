@@ -7,12 +7,6 @@ export default function BookingModal({ isOpen, onClose, adventure }: { isOpen: b
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (isOpen && !isProcessing) {
-      setProgress(0);
-    }
-  }, [isOpen, isProcessing]);
-
-  useEffect(() => {
     if (isProcessing) {
       const interval = setInterval(() => {
         setProgress(p => {
@@ -26,10 +20,16 @@ export default function BookingModal({ isOpen, onClose, adventure }: { isOpen: b
 
   if (!isOpen) return null;
 
+  const handleClose = () => {
+    setIsProcessing(false);
+    setProgress(0);
+    onClose();
+  };
+
   return (
     <>
       {/* Modal Backdrop */}
-      <div className="fixed inset-0 bg-on-surface/40 backdrop-blur-sm z-[100]" onClick={onClose}></div>
+      <div className="fixed inset-0 bg-on-surface/40 backdrop-blur-sm z-[100]" onClick={handleClose}></div>
       
       {/* 16:9 Modal Container */}
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[110] w-full max-w-5xl md:h-[600px] bg-surface-container-lowest shadow-2xl overflow-hidden flex flex-col md:flex-row rounded-xl border border-outline-variant/30">
@@ -53,7 +53,7 @@ export default function BookingModal({ isOpen, onClose, adventure }: { isOpen: b
               <h2 className="font-headline text-2xl font-bold text-on-surface tracking-tight">Booking Summary</h2>
               <p className="text-on-surface-variant text-sm mt-1">Review your safari details before processing payment.</p>
             </div>
-            <button onClick={onClose} className="text-on-surface-variant hover:text-primary transition-colors bg-surface-container h-8 w-8 rounded-full flex items-center justify-center">
+            <button onClick={handleClose} className="text-on-surface-variant hover:text-primary transition-colors bg-surface-container h-8 w-8 rounded-full flex items-center justify-center">
               <span className="material-symbols-outlined text-sm">close</span>
             </button>
           </div>
@@ -109,7 +109,10 @@ export default function BookingModal({ isOpen, onClose, adventure }: { isOpen: b
             <div className="space-y-3">
               {!isProcessing ? (
                 <button 
-                  onClick={() => setIsProcessing(true)}
+                  onClick={() => {
+                    setProgress(0);
+                    setIsProcessing(true);
+                  }}
                   className="bg-gradient-to-br from-[#ad2c00] to-[#d34011] w-full py-4 text-white font-headline font-extrabold text-lg rounded-xl shadow-lg hover:shadow-primary/20 hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                 >
                   <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>

@@ -22,9 +22,6 @@ export default function GalleryPage() {
       )
     : allCards;
 
-  // Assign a varying aspect-ratio class per index to mimic Pinterest heights
-  const heights = ["aspect-[2/3]", "aspect-[3/4]", "aspect-square", "aspect-[3/5]", "aspect-[4/5]", "aspect-[2/3]", "aspect-[1/1]", "aspect-[3/4]"];
-
   return (
     <div className="bg-surface min-h-screen text-on-surface font-body">
       <Navbar />
