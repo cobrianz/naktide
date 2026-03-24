@@ -1,5 +1,7 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import localFont from "next/font/local";
+
+import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
 
@@ -24,11 +26,7 @@ export const metadata: Metadata = {
   description: "Curating Kenya and East Africa's most intentional safari experiences.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${jost.variable} ${jost.className}`}>
       <head>
@@ -37,8 +35,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased min-h-screen flex flex-col bg-background text-on-background" suppressHydrationWarning>
+      <body className="min-h-screen flex flex-col bg-background text-on-background antialiased" suppressHydrationWarning>
         {children}
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

@@ -1,602 +1,336 @@
-import { MOCK_ADVENTURES, type Adventure } from "@/api/adventures";
+﻿
+import type { Adventure } from "@/api/adventures";
+import { getCurrentSession } from "@/lib/auth";
+import { hashPassword } from "@/lib/auth";
+import { getDb } from "@/lib/mongodb";
+import * as seedSource from "@/lib/seed-data";
 
-export type BookingStatus = "confirmed" | "pending" | "cancelled" | "completed";
-export type MessageStatus = "unread" | "replied" | "archived";
-export type InventoryStatus = "scheduled" | "draft" | "archived";
+export type {
+  AdminCustomer,
+  AdminSettings,
+  AnalyticsDatum,
+  BillingRecord,
+  BlogPost,
+  Booking,
+  BookingStatus,
+  InventoryItem,
+  InventoryStatus,
+  MediaAsset,
+  MessageStatus,
+  PublicContentSnapshot,
+  SiteNotification,
+  UserMessage,
+  UserProfile,
+  UserSettings,
+  WishlistItem,
+} from "@/lib/seed-data";
 
-export interface UserProfile {
+import type {
+  AdminCustomer,
+  AdminSettings,
+  AnalyticsDatum,
+  BillingRecord,
+  BlogPost,
+  Booking,
+  InventoryItem,
+  MediaAsset,
+  PublicContentSnapshot,
+  SiteNotification,
+  UserMessage,
+  UserProfile,
+  UserSettings,
+  WishlistItem,
+} from "@/lib/seed-data";
+
+type UserRecord = {
   id: string;
-  name: string;
-  firstName: string;
-  tier: string;
   email: string;
-  phone: string;
-  location: string;
-  avatar: string;
-  memberSince: string;
-  rewardPoints: number;
-  nextJourneyWindow: string;
-}
-
-export interface UserMessage {
-  id: string;
-  subject: string;
-  preview: string;
-  body: string;
-  from: string;
-  to?: string;
-  receivedAt: string;
-  status: MessageStatus;
-  bookingId?: string;
-}
-
-export interface Booking {
-  id: string;
-  reference: string;
-  adventureId: string;
-  adventureTitle: string;
-  location: string;
-  travelDate: string;
-  partySize: number;
-  amount: number;
-  currency: string;
-  status: BookingStatus;
-  image: string;
-  customerId: string;
-  customerName: string;
-  travelers?: string[];
-  notes: string;
-}
-
-export interface WishlistItem {
-  id: string;
-  adventureId: string;
-  title: string;
-  location: string;
-  idealWindow: string;
-  priceFrom: number;
-  image: string;
-  category: string;
-}
-
-export interface UserSettings {
-  notifications: {
-    expeditionAlerts: boolean;
-    paymentUpdates: boolean;
-    weeklyDigest: boolean;
-  };
-  preferences: {
-    preferredCurrency: string;
-    preferredRegion: string;
-    travelStyle: string;
-  };
-}
-
-export interface AdminCustomer {
-  id: string;
   name: string;
-  email: string;
-  phone: string;
-  tier: string;
-  lifetimeValue: number;
-  activeBookings: number;
-  lastSeen: string;
-}
-
-export interface InventoryItem {
-  id: string;
-  adventureId: string;
-  title: string;
-  departureDate: string;
-  capacity: number;
-  booked: number;
-  waitlist: number;
-  status: InventoryStatus;
-}
-
-export interface AdminSettings {
-  allowPublicBookings: boolean;
-  requireManualReview: boolean;
-  payoutsEnabled: boolean;
-  supportEmail: string;
-}
-
-export interface SiteNotification {
-  id: string;
-  title: string;
-  body: string;
-  audience: "public" | "travelers";
-  active: boolean;
-}
-
-export interface MediaAsset {
-  id: string;
-  title: string;
-  url: string;
-  tag: string;
-  surface: "hero" | "gallery" | "tour";
-}
-
-export interface BillingRecord {
-  id: string;
-  supplier: string;
-  amount: number;
-  currency: string;
-  dueDate: string;
-  status: "scheduled" | "paid" | "holding";
-  note: string;
-}
-
-export interface AnalyticsDatum {
-  id: string;
-  label: string;
-  value: number;
-  change: string;
-}
-
-export interface PublicContentSnapshot {
-  notifications: SiteNotification[];
-  media: MediaAsset[];
-  tours: Adventure[];
-}
-
-export interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  category: string;
-  excerpt: string;
-  body: string;
-  image: string;
-}
-
-const userProfile: UserProfile = {
-  id: "user-001",
-  name: "Julian Alexander Vance",
-  firstName: "Julian",
-  tier: "Elite Voyager",
-  email: "j.vance@naktide.com",
-  phone: "+1 (555) 012-8843",
-  location: "Nairobi, Kenya",
-  avatar: "https://i.pravatar.cc/200?img=12",
-  memberSince: "2019-08-12",
-  rewardPoints: 14250,
-  nextJourneyWindow: "October 12 to October 19, 2026",
+  role: "traveler" | "admin";
+  passwordHash: string;
 };
 
-const messages: UserMessage[] = [
-  {
-    id: "msg-001",
-    subject: "Final traveler brief for Serengeti Crossing",
-    preview: "Your private guide assignment, charter timing, and camp notes are ready for review.",
-    body: "Your private guide assignment is confirmed, charter timing from Wilson is locked, and camp notes are attached for review before departure.",
-    from: "Concierge Desk",
-    to: "Julian Alexander Vance",
-    receivedAt: "2026-03-22T10:30:00.000Z",
-    status: "unread",
-    bookingId: "booking-001",
-  },
-  {
-    id: "msg-002",
-    subject: "Upgrade available: night photography permit",
-    preview: "We can attach a protected conservancy permit to your October departure.",
-    body: "Operations has identified an opening for a protected conservancy night photography permit. Reply if you want us to add the supplement.",
-    from: "Operations",
-    to: "Julian Alexander Vance",
-    receivedAt: "2026-03-20T15:00:00.000Z",
-    status: "replied",
-    bookingId: "booking-001",
-  },
-  {
-    id: "msg-003",
-    subject: "Loyalty milestone reached",
-    preview: "Your account has crossed the threshold for a private airstrip transfer credit.",
-    body: "Your account has crossed the threshold for a private airstrip transfer credit that can be applied to a future Kenya or regional departure.",
-    from: "Rewards",
-    to: "Julian Alexander Vance",
-    receivedAt: "2026-03-18T08:15:00.000Z",
-    status: "archived",
-  },
-];
-
-let bookings: Booking[] = [
-  {
-    id: "booking-001",
-    reference: "NKT-SV-9821",
-    adventureId: "serengeti-crossing-2024",
-    adventureTitle: "The Serengeti Crossing",
-    location: "Northern Serengeti, Tanzania",
-    travelDate: "2026-10-12",
-    partySize: 2,
-    amount: 425000,
-    currency: "KES",
-    status: "confirmed",
-    image: MOCK_ADVENTURES[0]?.image ?? "",
-    customerId: "user-001",
-    customerName: "Julian Alexander Vance",
-    travelers: ["Julian Alexander Vance", "Maya Vance"],
-    notes: "Private photo vehicle, premium camp suite, dietary brief submitted.",
-  },
-  {
-    id: "booking-002",
-    reference: "NKT-GM-1105",
-    adventureId: "gorillas-mist-2024",
-    adventureTitle: "Gorillas in the Mist",
-    location: "Volcanoes National Park, Rwanda",
-    travelDate: "2026-11-05",
-    partySize: 4,
-    amount: 680000,
-    currency: "KES",
-    status: "pending",
-    image: MOCK_ADVENTURES[1]?.image ?? "",
-    customerId: "user-001",
-    customerName: "Julian Alexander Vance",
-    travelers: ["Julian Alexander Vance", "Maya Vance", "Amani Otieno", "Luca Mercer"],
-    notes: "Permit allocation pending final passport verification.",
-  },
-  {
-    id: "booking-003",
-    reference: "NKT-SC-0115",
-    adventureId: "skeleton-coast-2024",
-    adventureTitle: "Skeleton Coast & Dunes",
-    location: "Skeleton Coast, Namibia",
-    travelDate: "2025-01-15",
-    partySize: 2,
-    amount: 510000,
-    currency: "KES",
-    status: "completed",
-    image: MOCK_ADVENTURES[3]?.image ?? "",
-    customerId: "user-001",
-    customerName: "Julian Alexander Vance",
-    travelers: ["Julian Alexander Vance", "Maya Vance"],
-    notes: "Successfully completed. Editorial asset pack delivered.",
-  },
-];
-
-const wishlist: WishlistItem[] = [
-  {
-    id: "wish-001",
-    adventureId: "okavango-delta-2024",
-    title: "Okavango Delta Photo-Op",
-    location: "Okavango Delta, Botswana",
-    idealWindow: "December 2026",
-    priceFrom: 510000,
-    image: MOCK_ADVENTURES[2]?.image ?? "",
-    category: "Photography",
-  },
-  {
-    id: "wish-002",
-    adventureId: "bwindi-trek-2023",
-    title: "Bwindi Forest Trek",
-    location: "Bwindi, Uganda",
-    idealWindow: "September 2026",
-    priceFrom: 320000,
-    image: MOCK_ADVENTURES[5]?.image ?? "",
-    category: "Trekking",
-  },
-];
-
-let userSettings: UserSettings = {
-  notifications: {
-    expeditionAlerts: true,
-    paymentUpdates: true,
-    weeklyDigest: false,
-  },
-  preferences: {
-    preferredCurrency: "KES",
-    preferredRegion: "East Africa",
-    travelStyle: "Private photography-led itineraries",
-  },
+type OperationsFeedItem = {
+  id: string;
+  title: string;
+  at: string;
+  kind: string;
 };
 
-let adminCustomers: AdminCustomer[] = [
-  {
-    id: "customer-001",
-    name: "Julian Alexander Vance",
-    email: "j.vance@naktide.com",
-    phone: "+1 (555) 012-8843",
-    tier: "Elite Voyager",
-    lifetimeValue: 1615000,
-    activeBookings: 2,
-    lastSeen: "2026-03-24T07:20:00.000Z",
-  },
-  {
-    id: "customer-002",
-    name: "Aisha Njoroge",
-    email: "aisha.njoroge@example.com",
-    phone: "+254 700 000001",
-    tier: "Savannah Circle",
-    lifetimeValue: 845000,
-    activeBookings: 1,
-    lastSeen: "2026-03-23T18:10:00.000Z",
-  },
-  {
-    id: "customer-003",
-    name: "Daniel Mercer",
-    email: "daniel.mercer@example.com",
-    phone: "+44 20 7000 2222",
-    tier: "Voyager",
-    lifetimeValue: 525000,
-    activeBookings: 0,
-    lastSeen: "2026-03-21T14:40:00.000Z",
-  },
-];
+let seedPromise: Promise<void> | null = null;
 
-const inventory: InventoryItem[] = [
-  {
-    id: "inv-001",
-    adventureId: "serengeti-crossing-2024",
-    title: "The Serengeti Crossing",
-    departureDate: "2026-10-12",
-    capacity: 8,
-    booked: 6,
-    waitlist: 2,
-    status: "scheduled",
-  },
-  {
-    id: "inv-002",
-    adventureId: "gorillas-mist-2024",
-    title: "Gorillas in the Mist",
-    departureDate: "2026-11-05",
-    capacity: 6,
-    booked: 4,
-    waitlist: 1,
-    status: "scheduled",
-  },
-  {
-    id: "inv-003",
-    adventureId: "new-kenya-rift-camp",
-    title: "Rift Valley Fly Camp",
-    departureDate: "2026-12-03",
-    capacity: 10,
-    booked: 0,
-    waitlist: 0,
-    status: "draft",
-  },
-];
+async function ensureSeeded() {
+  if (!seedPromise) {
+    seedPromise = (async () => {
+      const db = await getDb();
+      const meta = db.collection<{ key: string; seededAt: string }>("meta");
+      const existing = await meta.findOne({ key: "seed-v1" });
+      if (existing) return;
 
-let adminSettings: AdminSettings = {
-  allowPublicBookings: true,
-  requireManualReview: true,
-  payoutsEnabled: false,
-  supportEmail: "ops@naktide.com",
-};
+      const profile = await seedSource.getUserProfile();
+      const messages = await seedSource.getUserMessages();
+      const bookings = await seedSource.getUserBookings();
+      const wishlist = await seedSource.getWishlist();
+      const settings = await seedSource.getUserSettings();
+      const customers = await seedSource.getAdminCustomers();
+      const inventory = await seedSource.getInventory();
+      const adminSettings = await seedSource.getAdminSettings();
+      const tours = await seedSource.getCatalogue();
+      const notifications = await seedSource.getSiteNotifications();
+      const media = await seedSource.getMediaAssets();
+      const billing = await seedSource.getBillingRecords();
+      const analytics = await seedSource.getAnalytics();
+      const blogs = await seedSource.getBlogPosts();
+      const ops = await seedSource.getOperationsFeed();
 
-const catalogue: Adventure[] = MOCK_ADVENTURES;
+      await db.collection<UserRecord>("users").insertMany([
+        {
+          id: profile.id,
+          email: profile.email.toLowerCase(),
+          name: profile.name,
+          role: "traveler",
+          passwordHash: hashPassword("Traveler123!"),
+        },
+        {
+          id: "admin-001",
+          email: "admin@naktide.com",
+          name: "NakTide Admin",
+          role: "admin",
+          passwordHash: hashPassword("Admin123!"),
+        },
+      ]);
 
-let siteNotifications: SiteNotification[] = [
-  {
-    id: "notif-001",
-    title: "Mara season windows open",
-    body: "Early allocations for July to October departures are now open from the Nairobi desk.",
-    audience: "public",
-    active: true,
-  },
-  {
-    id: "notif-002",
-    title: "Passport check required",
-    body: "Travelers with pending gorilla permits must upload passport scans before confirmation.",
-    audience: "travelers",
-    active: true,
-  },
-];
+      await db.collection<UserProfile>("userProfiles").insertOne(profile);
+      await db.collection<UserMessage>("messages").insertMany(messages.map((item) => ({ ...item, userId: profile.id })) as (UserMessage & { userId: string })[]);
+      await db.collection<Booking>("bookings").insertMany(bookings);
+      await db.collection<WishlistItem>("wishlist").insertMany(wishlist.map((item) => ({ ...item, userId: profile.id })) as (WishlistItem & { userId: string })[]);
+      await db.collection<UserSettings & { userId: string }>("userSettings").insertOne({ ...settings, userId: profile.id });
+      await db.collection<AdminCustomer>("adminCustomers").insertMany(customers);
+      await db.collection("inventory").insertMany(inventory);
+      await db.collection<AdminSettings>("adminSettings").insertOne(adminSettings);
+      await db.collection<Adventure>("adventures").insertMany(tours);
+      await db.collection<SiteNotification>("siteNotifications").insertMany(notifications);
+      await db.collection<MediaAsset>("mediaAssets").insertMany(media);
+      await db.collection<BillingRecord>("billingRecords").insertMany(billing);
+      await db.collection<AnalyticsDatum>("analytics").insertMany(analytics);
+      await db.collection<BlogPost>("blogPosts").insertMany(blogs);
+      await db.collection<OperationsFeedItem>("operationsFeed").insertMany(ops);
+      await meta.insertOne({ key: "seed-v1", seededAt: new Date().toISOString() });
+    })();
+  }
 
-let mediaAssets: MediaAsset[] = [
-  {
-    id: "media-001",
-    title: "Mara dawn hero",
-    url: "https://images.pexels.com/photos/1054668/pexels-photo-1054668.jpeg",
-    tag: "maasai-mara",
-    surface: "hero",
-  },
-  {
-    id: "media-002",
-    title: "Amboseli elephants",
-    url: "https://images.pexels.com/photos/247376/pexels-photo-247376.jpeg",
-    tag: "amboseli",
-    surface: "gallery",
-  },
-  {
-    id: "media-003",
-    title: "Samburu editorial frame",
-    url: "https://images.pexels.com/photos/1670984/pexels-photo-1670984.jpeg",
-    tag: "samburu",
-    surface: "tour",
-  },
-];
-
-let billingRecords: BillingRecord[] = [
-  {
-    id: "bill-001",
-    supplier: "Mara River Camp",
-    amount: 220000,
-    currency: "KES",
-    dueDate: "2026-04-02",
-    status: "scheduled",
-    note: "October crossing departure room hold",
-  },
-  {
-    id: "bill-002",
-    supplier: "Rwanda Permit Office",
-    amount: 150000,
-    currency: "KES",
-    dueDate: "2026-03-30",
-    status: "holding",
-    note: "Awaiting traveler passport verification",
-  },
-  {
-    id: "bill-003",
-    supplier: "Wilson Charter Desk",
-    amount: 98000,
-    currency: "KES",
-    dueDate: "2026-03-18",
-    status: "paid",
-    note: "Nairobi-Wilson to Kogatende allocation",
-  },
-];
-
-const analytics: AnalyticsDatum[] = [
-  { id: "ana-001", label: "Qualified leads", value: 128, change: "+14%" },
-  { id: "ana-002", label: "Booking conversion", value: 37, change: "+6%" },
-  { id: "ana-003", label: "Average order value", value: 462000, change: "+9%" },
-  { id: "ana-004", label: "Repeat traveler rate", value: 42, change: "+5%" },
-];
-
-let blogPosts: BlogPost[] = [
-  {
-    id: "blog-001",
-    title: "When to book the Maasai Mara for migration season",
-    slug: "maasai-mara-migration-timing",
-    category: "Planning",
-    excerpt: "A practical view of lodge windows, river crossing timing, and how to avoid overbuilt safari schedules.",
-    body: "Booking well for the Mara means understanding crossing windows, camp positioning, and how to keep transfer days from consuming your best light.",
-    image: "https://images.pexels.com/photos/1054668/pexels-photo-1054668.jpeg",
-  },
-  {
-    id: "blog-002",
-    title: "Amboseli photography briefs that actually matter",
-    slug: "amboseli-photo-brief",
-    category: "Field Notes",
-    excerpt: "Dust, elephants, and Kilimanjaro demand a different pacing model than typical game-drive itineraries.",
-    body: "The strongest Amboseli itineraries trade speed for positioning. You want clear horizon access, fewer location changes, and slower tracking around family groups.",
-    image: "https://images.pexels.com/photos/247376/pexels-photo-247376.jpeg",
-  },
-];
-
-function sumRevenue(source: Booking[]) {
-  return source.reduce((total, booking) => total + booking.amount, 0);
+  return seedPromise;
 }
 
-function stampNow() {
+async function requireSession() {
+  await ensureSeeded();
+  const session = await getCurrentSession();
+  if (!session) {
+    throw new Error("Not authenticated");
+  }
+  return session;
+}
+
+async function currentUserId() {
+  return (await requireSession()).userId;
+}
+
+function now() {
   return new Date().toISOString();
 }
 
-function updateArrayItem<T extends { id: string }>(items: T[], id: string, partial: Partial<T>) {
-  return items.map((item) => (item.id === id ? { ...item, ...partial } : item));
+function id(prefix: string) {
+  return `${prefix}-${Date.now()}`;
 }
 
-export async function getUserProfile() {
-  return userProfile;
+async function dataDb() {
+  await ensureSeeded();
+  return getDb();
+}
+
+
+export async function bootstrapTravelerAccount(input: { userId: string; name: string; email: string; location?: string }) {
+  await ensureSeeded();
+  const db = await dataDb();
+  const profile: UserProfile = {
+    id: input.userId,
+    name: input.name,
+    firstName: input.name.split(" ")[0] ?? input.name,
+    tier: "Voyager",
+    email: input.email.toLowerCase(),
+    phone: "",
+    location: input.location || "Kenya",
+    avatar: "https://i.pravatar.cc/200?img=32",
+    memberSince: now().slice(0, 10),
+    rewardPoints: 0,
+    nextJourneyWindow: "Planning in progress",
+  };
+
+  await db.collection<UserProfile>("userProfiles").insertOne(profile);
+  await db.collection<UserSettings & { userId: string }>("userSettings").insertOne({
+    userId: input.userId,
+    notifications: { expeditionAlerts: true, paymentUpdates: true, weeklyDigest: false },
+    preferences: { preferredCurrency: "KES", preferredRegion: "East Africa", travelStyle: "Custom safari planning" },
+  });
+  await db.collection<AdminCustomer>("adminCustomers").insertOne({
+    id: `customer-${Date.now()}`,
+    name: input.name,
+    email: input.email.toLowerCase(),
+    phone: "",
+    tier: "Voyager",
+    lifetimeValue: 0,
+    activeBookings: 0,
+    lastSeen: now(),
+  });
+  await db.collection<UserMessage & { userId: string }>("messages").insertOne({
+    id: id("msg"),
+    userId: input.userId,
+    subject: "Welcome to NakTide",
+    preview: "Your account is ready for safari planning.",
+    body: "Your traveler account is active. You can now manage bookings, messages, and receipts from your dashboard.",
+    from: "NakTide Concierge",
+    to: input.name,
+    receivedAt: now(),
+    status: "unread",
+  });
+}
+
+export async function getUserProfile(): Promise<UserProfile> {
+  const db = await dataDb();
+  const profile = await db.collection<UserProfile>("userProfiles").findOne({ id: await currentUserId() });
+  if (!profile) throw new Error("Profile not found");
+  return profile;
 }
 
 export async function getUserMessages() {
-  return messages;
+  const db = await dataDb();
+  return db.collection<UserMessage & { userId: string }>("messages").find({ userId: await currentUserId() }).sort({ receivedAt: -1 }).toArray();
 }
 
 export async function createUserMessage(payload: Omit<UserMessage, "id" | "receivedAt" | "preview"> & { preview?: string }) {
-  const message: UserMessage = {
-    ...payload,
-    id: `msg-${Date.now()}`,
-    receivedAt: stampNow(),
-    preview: payload.preview ?? payload.body.slice(0, 88),
-  };
-  messages.unshift(message);
+  const db = await dataDb();
+  const message = { ...payload, userId: await currentUserId(), id: id("msg"), receivedAt: now(), preview: payload.preview ?? payload.body.slice(0, 88) };
+  await db.collection<UserMessage & { userId: string }>("messages").insertOne(message);
   return message;
 }
 
-export async function updateUserMessage(id: string, partial: Partial<UserMessage>) {
-  const index = messages.findIndex((message) => message.id === id);
-  if (index === -1) {
-    return undefined;
-  }
-  messages[index] = { ...messages[index], ...partial };
-  return messages[index];
+export async function updateUserMessage(idValue: string, partial: Partial<UserMessage>) {
+  const db = await dataDb();
+  await db.collection<UserMessage & { userId: string }>("messages").updateOne({ id: idValue }, { $set: partial });
+  return db.collection<UserMessage & { userId: string }>("messages").findOne({ id: idValue });
 }
 
 export async function getUserBookings() {
-  return bookings;
+  const session = await requireSession();
+  const db = await dataDb();
+  if (session.role === "admin") return db.collection<Booking>("bookings").find({}).sort({ travelDate: 1 }).toArray();
+  return db.collection<Booking>("bookings").find({ customerId: session.userId }).sort({ travelDate: 1 }).toArray();
 }
 
-export async function getBookingById(id: string) {
-  return bookings.find((booking) => booking.id === id);
+export async function getBookingById(idValue: string) {
+  const db = await dataDb();
+  const booking = await db.collection<Booking>("bookings").findOne({ id: idValue });
+  const session = await requireSession();
+  if (session.role !== "admin" && booking?.customerId !== session.userId) return undefined;
+  return booking;
 }
 
 export async function getWishlist() {
-  return wishlist;
+  const db = await dataDb();
+  return db.collection<WishlistItem & { userId: string }>("wishlist").find({ userId: await currentUserId() }).toArray();
 }
 
-export async function getUserSettings() {
-  return userSettings;
+export async function getUserSettings(): Promise<UserSettings> {
+  const db = await dataDb();
+  const userId = await currentUserId();
+  const doc = await db.collection<UserSettings & { userId: string }>("userSettings").findOne({ userId });
+  if (doc) return { notifications: doc.notifications, preferences: doc.preferences };
+  const fallback: UserSettings = { notifications: { expeditionAlerts: true, paymentUpdates: true, weeklyDigest: false }, preferences: { preferredCurrency: "KES", preferredRegion: "East Africa", travelStyle: "Custom safari planning" } };
+  await db.collection<UserSettings & { userId: string }>("userSettings").insertOne({ userId, ...fallback });
+  return fallback;
 }
 
 export async function updateUserSettings(partial: Partial<UserSettings>) {
-  userSettings = {
-    notifications: {
-      ...userSettings.notifications,
-      ...partial.notifications,
-    },
-    preferences: {
-      ...userSettings.preferences,
-      ...partial.preferences,
-    },
-  };
-  return userSettings;
+  const db = await dataDb();
+  const userId = await currentUserId();
+  const current = await getUserSettings();
+  const next = {
+    notifications: { ...current?.notifications, ...partial.notifications },
+    preferences: { ...current?.preferences, ...partial.preferences },
+  } as UserSettings;
+  await db.collection<UserSettings & { userId: string }>("userSettings").updateOne({ userId }, { $set: { ...next, userId } }, { upsert: true });
+  return next;
 }
 
 export async function getDashboardSummary() {
+  const profile = await getUserProfile();
+  const bookings = await getUserBookings();
+  const messages = await getUserMessages();
+  const wishlist = await getWishlist();
   const activeBookings = bookings.filter((booking) => booking.status === "confirmed" || booking.status === "pending");
   return {
-    rewardPoints: userProfile.rewardPoints,
+    rewardPoints: profile?.rewardPoints ?? 0,
     activeBookings: activeBookings.length,
     unreadMessages: messages.filter((message) => message.status === "unread").length,
     wishlistCount: wishlist.length,
     nextDeparture: activeBookings[0]?.travelDate ?? null,
-    totalSpend: sumRevenue(bookings.filter((booking) => booking.status !== "cancelled")),
+    totalSpend: bookings.filter((booking) => booking.status !== "cancelled").reduce((sum, booking) => sum + booking.amount, 0),
   };
 }
 
 export async function getAdminCustomers() {
-  return adminCustomers;
+  const db = await dataDb();
+  return db.collection<AdminCustomer>("adminCustomers").find({}).sort({ name: 1 }).toArray();
 }
 
 export async function createAdminCustomer(payload: Omit<AdminCustomer, "id" | "lastSeen">) {
-  const customer: AdminCustomer = {
-    ...payload,
-    id: `customer-${Date.now()}`,
-    lastSeen: stampNow(),
-  };
-  adminCustomers = [customer, ...adminCustomers];
+  const db = await dataDb();
+  const customer = { ...payload, id: id("customer"), lastSeen: now() };
+  await db.collection<AdminCustomer>("adminCustomers").insertOne(customer);
   return customer;
 }
 
-export async function updateAdminCustomer(id: string, partial: Partial<AdminCustomer>) {
-  adminCustomers = updateArrayItem(adminCustomers, id, { ...partial, lastSeen: stampNow() });
-  return adminCustomers.find((customer) => customer.id === id);
+export async function updateAdminCustomer(idValue: string, partial: Partial<AdminCustomer>) {
+  const db = await dataDb();
+  await db.collection<AdminCustomer>("adminCustomers").updateOne({ id: idValue }, { $set: { ...partial, lastSeen: now() } });
+  return db.collection<AdminCustomer>("adminCustomers").findOne({ id: idValue });
 }
 
-export async function deleteAdminCustomer(id: string) {
-  adminCustomers = adminCustomers.filter((customer) => customer.id !== id);
+export async function deleteAdminCustomer(idValue: string) {
+  const db = await dataDb();
+  await db.collection<AdminCustomer>("adminCustomers").deleteOne({ id: idValue });
   return { ok: true };
 }
 
-export async function getInventory() {
-  return inventory;
+export async function getInventory(): Promise<InventoryItem[]> {
+  const db = await dataDb();
+  return db.collection<InventoryItem>("inventory").find({}).toArray();
 }
 
-export async function getAdminSettings() {
-  return adminSettings;
+export async function getAdminSettings(): Promise<AdminSettings> {
+  const db = await dataDb();
+  const settings = await db.collection<AdminSettings>("adminSettings").findOne({});
+  if (settings) return settings;
+  const fallback = await seedSource.getAdminSettings();
+  await db.collection<AdminSettings>("adminSettings").insertOne(fallback);
+  return fallback;
 }
 
 export async function updateAdminSettings(partial: Partial<AdminSettings>) {
-  adminSettings = { ...adminSettings, ...partial };
-  return adminSettings;
+  const db = await dataDb();
+  const current = await getAdminSettings();
+  const next = { ...current, ...partial } as AdminSettings;
+  await db.collection<AdminSettings>("adminSettings").updateOne({}, { $set: next });
+  return next;
 }
 
 export async function getCatalogue(): Promise<Adventure[]> {
-  return catalogue;
+  const db = await dataDb();
+  return db.collection<Adventure>("adventures").find({}).toArray();
 }
 
-export async function createTour(payload: {
-  title: string;
-  location: string;
-  price: string;
-  date: string;
-  overview: string;
-  category: string;
-  image: string;
-  status?: "upcoming" | "completed";
-  gallery?: string[];
-}) {
+export async function createTour(payload: { title: string; location: string; price: string; date: string; overview: string; category: string; image: string; status?: "upcoming" | "completed"; gallery?: string[]; }) {
+  const db = await dataDb();
   const tour: Adventure = {
     id: `${payload.title.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
     image: payload.image,
@@ -617,178 +351,82 @@ export async function createTour(payload: {
     excluded: ["International flights", "Visa fees"],
     itinerary: [{ day: 1, title: "Arrival and briefing", description: "Arrival, welcome, and field briefing from the Nairobi desk." }],
   };
-  catalogue.unshift(tour);
+  await db.collection<Adventure>("adventures").insertOne(tour);
   return tour;
 }
 
-export async function updateTour(id: string, partial: Partial<Adventure>) {
-  const index = catalogue.findIndex((tour) => tour.id === id);
-  if (index === -1) {
-    return undefined;
-  }
-  catalogue[index] = { ...catalogue[index], ...partial };
-  return catalogue[index];
+export async function updateTour(idValue: string, partial: Partial<Adventure>) {
+  const db = await dataDb();
+  await db.collection<Adventure>("adventures").updateOne({ id: idValue }, { $set: partial });
+  return db.collection<Adventure>("adventures").findOne({ id: idValue });
 }
 
-export async function deleteTour(id: string) {
-  const index = catalogue.findIndex((tour) => tour.id === id);
-  if (index >= 0) {
-    catalogue.splice(index, 1);
-  }
+export async function deleteTour(idValue: string) {
+  const db = await dataDb();
+  await db.collection<Adventure>("adventures").deleteOne({ id: idValue });
   return { ok: true };
 }
 
-export async function getSiteNotifications() {
-  return siteNotifications;
-}
+export async function getSiteNotifications() { const db = await dataDb(); return db.collection<SiteNotification>("siteNotifications").find({}).toArray(); }
+export async function createNotification(payload: Omit<SiteNotification, "id">) { const db = await dataDb(); const item = { ...payload, id: id("notif") }; await db.collection<SiteNotification>("siteNotifications").insertOne(item); return item; }
+export async function updateNotification(idValue: string, partial: Partial<SiteNotification>) { const db = await dataDb(); await db.collection<SiteNotification>("siteNotifications").updateOne({ id: idValue }, { $set: partial }); return db.collection<SiteNotification>("siteNotifications").findOne({ id: idValue }); }
+export async function deleteNotification(idValue: string) { const db = await dataDb(); await db.collection<SiteNotification>("siteNotifications").deleteOne({ id: idValue }); return { ok: true }; }
 
-export async function createNotification(payload: Omit<SiteNotification, "id">) {
-  const notification: SiteNotification = { ...payload, id: `notif-${Date.now()}` };
-  siteNotifications = [notification, ...siteNotifications];
-  return notification;
-}
+export async function getMediaAssets() { const db = await dataDb(); return db.collection<MediaAsset>("mediaAssets").find({}).toArray(); }
+export async function createMediaAsset(payload: Omit<MediaAsset, "id">) { const db = await dataDb(); const item = { ...payload, id: id("media") }; await db.collection<MediaAsset>("mediaAssets").insertOne(item); return item; }
+export async function updateMediaAsset(idValue: string, partial: Partial<MediaAsset>) { const db = await dataDb(); await db.collection<MediaAsset>("mediaAssets").updateOne({ id: idValue }, { $set: partial }); return db.collection<MediaAsset>("mediaAssets").findOne({ id: idValue }); }
+export async function deleteMediaAsset(idValue: string) { const db = await dataDb(); await db.collection<MediaAsset>("mediaAssets").deleteOne({ id: idValue }); return { ok: true }; }
 
-export async function updateNotification(id: string, partial: Partial<SiteNotification>) {
-  siteNotifications = updateArrayItem(siteNotifications, id, partial);
-  return siteNotifications.find((item) => item.id === id);
-}
+export async function getBillingRecords() { const db = await dataDb(); return db.collection<BillingRecord>("billingRecords").find({}).toArray(); }
+export async function updateBillingRecord(idValue: string, partial: Partial<BillingRecord>) { const db = await dataDb(); await db.collection<BillingRecord>("billingRecords").updateOne({ id: idValue }, { $set: partial }); return db.collection<BillingRecord>("billingRecords").findOne({ id: idValue }); }
+export async function createBillingRecord(payload: Omit<BillingRecord, "id">) { const db = await dataDb(); const item = { ...payload, id: id("bill") }; await db.collection<BillingRecord>("billingRecords").insertOne(item); return item; }
+export async function deleteBillingRecord(idValue: string) { const db = await dataDb(); await db.collection<BillingRecord>("billingRecords").deleteOne({ id: idValue }); return { ok: true }; }
 
-export async function deleteNotification(id: string) {
-  siteNotifications = siteNotifications.filter((item) => item.id !== id);
-  return { ok: true };
-}
-
-export async function getMediaAssets() {
-  return mediaAssets;
-}
-
-export async function createMediaAsset(payload: Omit<MediaAsset, "id">) {
-  const asset: MediaAsset = { ...payload, id: `media-${Date.now()}` };
-  mediaAssets = [asset, ...mediaAssets];
-  return asset;
-}
-
-export async function updateMediaAsset(id: string, partial: Partial<MediaAsset>) {
-  mediaAssets = updateArrayItem(mediaAssets, id, partial);
-  return mediaAssets.find((asset) => asset.id === id);
-}
-
-export async function deleteMediaAsset(id: string) {
-  mediaAssets = mediaAssets.filter((asset) => asset.id !== id);
-  return { ok: true };
-}
-
-export async function getBillingRecords() {
-  return billingRecords;
-}
-
-export async function updateBillingRecord(id: string, partial: Partial<BillingRecord>) {
-  billingRecords = updateArrayItem(billingRecords, id, partial);
-  return billingRecords.find((record) => record.id === id);
-}
-
-export async function createBillingRecord(payload: Omit<BillingRecord, "id">) {
-  const record: BillingRecord = { ...payload, id: `bill-${Date.now()}` };
-  billingRecords = [record, ...billingRecords];
-  return record;
-}
-
-export async function deleteBillingRecord(id: string) {
-  billingRecords = billingRecords.filter((record) => record.id !== id);
-  return { ok: true };
-}
-
-export async function getAnalytics() {
-  return analytics;
-}
+export async function getAnalytics() { const db = await dataDb(); return db.collection<AnalyticsDatum>("analytics").find({}).toArray(); }
+export async function getOperationsFeed() { const db = await dataDb(); return db.collection<OperationsFeedItem>("operationsFeed").find({}).sort({ at: -1 }).toArray(); }
 
 export async function getAdminOverview() {
-  const confirmed = bookings.filter((booking) => booking.status === "confirmed").length;
-  const pending = bookings.filter((booking) => booking.status === "pending").length;
+  const bookings = await dataDb().then((db) => db.collection<Booking>("bookings").find({}).toArray());
+  const customers = await getAdminCustomers();
+  const inventory = await getInventory();
+  const billing = await getBillingRecords();
   return {
     bookings: {
       total: bookings.length,
-      confirmed,
-      pending,
-      revenue: sumRevenue(bookings.filter((booking) => booking.status !== "cancelled")),
+      confirmed: bookings.filter((booking) => booking.status === "confirmed").length,
+      pending: bookings.filter((booking) => booking.status === "pending").length,
+      revenue: bookings.filter((booking) => booking.status !== "cancelled").reduce((sum, booking) => sum + booking.amount, 0),
     },
-    customers: {
-      total: adminCustomers.length,
-      vip: adminCustomers.filter((customer) => customer.tier === "Elite Voyager").length,
-    },
+    customers: { total: customers.length, vip: customers.filter((customer) => customer.tier === "Elite Voyager").length },
     inventory: {
       totalDepartures: inventory.length,
-      seatsOpen: inventory.reduce((total, item) => total + Math.max(item.capacity - item.booked, 0), 0),
-      waitlist: inventory.reduce((total, item) => total + item.waitlist, 0),
+      seatsOpen: inventory.reduce((sum, item) => sum + Math.max(item.capacity - item.booked, 0), 0),
+      waitlist: inventory.reduce((sum, item) => sum + item.waitlist, 0),
     },
     billing: {
-      outstanding: billingRecords.filter((record) => record.status !== "paid").reduce((total, record) => total + record.amount, 0),
-      paid: billingRecords.filter((record) => record.status === "paid").reduce((total, record) => total + record.amount, 0),
+      outstanding: billing.filter((record) => record.status !== "paid").reduce((sum, record) => sum + record.amount, 0),
+      paid: billing.filter((record) => record.status === "paid").reduce((sum, record) => sum + record.amount, 0),
     },
   };
 }
 
-export async function updateBooking(id: string, partial: Partial<Booking>) {
-  bookings = updateArrayItem(bookings, id, partial);
-  return bookings.find((booking) => booking.id === id);
-}
+export async function updateBooking(idValue: string, partial: Partial<Booking>) { const db = await dataDb(); await db.collection<Booking>("bookings").updateOne({ id: idValue }, { $set: partial }); return db.collection<Booking>("bookings").findOne({ id: idValue }); }
+export async function deleteBooking(idValue: string) { const db = await dataDb(); await db.collection<Booking>("bookings").deleteOne({ id: idValue }); return { ok: true }; }
+export async function getPublicContentSnapshot(): Promise<PublicContentSnapshot> { return { notifications: await getSiteNotifications(), media: await getMediaAssets(), tours: await getCatalogue() }; }
+export async function getBlogPosts() { const db = await dataDb(); return db.collection<BlogPost>("blogPosts").find({}).toArray(); }
+export async function createBlogPost(payload: Omit<BlogPost, "id" | "slug"> & { slug?: string }) { const db = await dataDb(); const item = { ...payload, id: id("blog"), slug: payload.slug ?? payload.title.toLowerCase().replace(/\s+/g, "-") }; await db.collection<BlogPost>("blogPosts").insertOne(item); return item; }
+export async function updateBlogPost(idValue: string, partial: Partial<BlogPost>) { const db = await dataDb(); await db.collection<BlogPost>("blogPosts").updateOne({ id: idValue }, { $set: partial }); return db.collection<BlogPost>("blogPosts").findOne({ id: idValue }); }
+export async function deleteBlogPost(idValue: string) { const db = await dataDb(); await db.collection<BlogPost>("blogPosts").deleteOne({ id: idValue }); return { ok: true }; }
 
-export async function deleteBooking(id: string) {
-  bookings = bookings.filter((booking) => booking.id !== id);
-  return { ok: true };
-}
+export { ensureSeeded };
 
-export async function getOperationsFeed() {
-  return [
-    {
-      id: "ops-001",
-      title: "Concierge replied to 4 high-value travelers",
-      at: "2026-03-24T06:45:00.000Z",
-      kind: "support",
-    },
-    {
-      id: "ops-002",
-      title: "Serengeti Crossing waitlist increased to 2",
-      at: "2026-03-23T17:15:00.000Z",
-      kind: "inventory",
-    },
-    {
-      id: "ops-003",
-      title: "Manual review still required for Gorilla permits",
-      at: "2026-03-23T10:05:00.000Z",
-      kind: "compliance",
-    },
-  ];
-}
 
-export async function getPublicContentSnapshot(): Promise<PublicContentSnapshot> {
-  return {
-    notifications: siteNotifications,
-    media: mediaAssets,
-    tours: catalogue,
-  };
-}
 
-export async function getBlogPosts() {
-  return blogPosts;
-}
 
-export async function createBlogPost(payload: Omit<BlogPost, "id" | "slug"> & { slug?: string }) {
-  const post: BlogPost = {
-    ...payload,
-    id: `blog-${Date.now()}`,
-    slug: payload.slug ?? payload.title.toLowerCase().replace(/\s+/g, "-"),
-  };
-  blogPosts = [post, ...blogPosts];
-  return post;
-}
 
-export async function updateBlogPost(id: string, partial: Partial<BlogPost>) {
-  blogPosts = updateArrayItem(blogPosts, id, partial);
-  return blogPosts.find((post) => post.id === id);
-}
 
-export async function deleteBlogPost(id: string) {
-  blogPosts = blogPosts.filter((post) => post.id !== id);
-  return { ok: true };
-}
+
+
+
+
+

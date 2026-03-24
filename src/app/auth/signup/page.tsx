@@ -3,10 +3,39 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function SignupPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", location: "Nairobi, Kenya", password: "" });
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending(true);
+    setError("");
+
+    const response = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    const payload = await response.json();
+    setPending(false);
+
+    if (!response.ok) {
+      const message = payload.error ?? "Signup failed";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
+    toast.success("Account created successfully");
+    router.push("/dashboard");
+    router.refresh();
+  }
 
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#f6f1e5_0%,#efe4d0_55%,#e3d3bc_100%)] text-on-background">
@@ -19,13 +48,14 @@ export default function SignupPage() {
             </div>
             <p className="mt-6 text-[10px] font-black uppercase tracking-[0.35em] text-primary/60">Create account</p>
             <h2 className="mt-3 font-headline text-5xl font-semibold tracking-tight">Start your safari profile.</h2>
-            <p className="mt-3 text-sm leading-7 text-on-surface-variant">Build your traveler record for Kenya departures, multi-country itineraries, and concierge planning.</p>
-            <form className="mt-8 grid gap-5" onSubmit={(event) => { event.preventDefault(); router.push("/dashboard"); }}>
-              <div className="grid gap-5 md:grid-cols-2"><div className="space-y-2"><label htmlFor="first-name" className="text-sm font-semibold">First name</label><input id="first-name" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div><div className="space-y-2"><label htmlFor="last-name" className="text-sm font-semibold">Last name</label><input id="last-name" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div></div>
-              <div className="space-y-2"><label htmlFor="email" className="text-sm font-semibold">Email</label><input id="email" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div>
-              <div className="space-y-2"><label htmlFor="location" className="text-sm font-semibold">Primary location</label><input id="location" placeholder="Nairobi, Kenya" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div>
-              <div className="space-y-2"><label htmlFor="password" className="text-sm font-semibold">Password</label><div className="relative"><input id="password" type={showPassword ? "text" : "password"} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 pr-12 outline-none focus:border-primary" /><button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant" onClick={() => setShowPassword((value) => !value)}><span className="material-symbols-outlined text-base">{showPassword ? "visibility_off" : "visibility"}</span></button></div></div>
-              <button type="submit" className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white shadow-lg shadow-primary/20">Create profile <span className="material-symbols-outlined text-base">arrow_forward</span></button>
+            <p className="mt-3 text-sm leading-7 text-on-surface-variant">Your account will be saved to MongoDB and immediately provisioned for the traveler dashboard.</p>
+            <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
+              <div className="space-y-2"><label htmlFor="name" className="text-sm font-semibold">Full name</label><input id="name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div>
+              <div className="space-y-2"><label htmlFor="email" className="text-sm font-semibold">Email</label><input id="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div>
+              <div className="space-y-2"><label htmlFor="location" className="text-sm font-semibold">Primary location</label><input id="location" value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div>
+              <div className="space-y-2"><label htmlFor="password" className="text-sm font-semibold">Password</label><div className="relative"><input id="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} type={showPassword ? "text" : "password"} className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 pr-12 outline-none focus:border-primary" /><button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant" onClick={() => setShowPassword((value) => !value)}><span className="material-symbols-outlined text-base">{showPassword ? "visibility_off" : "visibility"}</span></button></div></div>
+              {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
+              <button type="submit" disabled={pending} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white shadow-lg shadow-primary/20 disabled:opacity-70">{pending ? "Creating profile..." : "Create profile"} <span className="material-symbols-outlined text-base">arrow_forward</span></button>
             </form>
             <p className="mt-6 text-sm text-on-surface-variant">Already have an account? <Link href="/auth/login" className="font-semibold text-primary">Sign in</Link></p>
           </div>
@@ -37,7 +67,7 @@ export default function SignupPage() {
           <div className="relative flex h-full flex-col justify-end p-10 text-white">
             <p className="text-[10px] uppercase tracking-[0.35em] text-white/70">Kenya based travel design</p>
             <h1 className="mt-4 max-w-xl font-headline text-6xl font-semibold leading-[0.92]">Join a safari brand built for thoughtful travelers.</h1>
-            <p className="mt-5 max-w-lg text-base text-white/75">From Maasai Mara migration timing to Rwanda permit sequencing, your account becomes the anchor for better planning.</p>
+            <p className="mt-5 max-w-lg text-base text-white/75">Your profile, settings, welcome message, and CRM record will be provisioned on signup.</p>
           </div>
         </section>
       </main>
