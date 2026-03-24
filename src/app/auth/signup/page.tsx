@@ -1,9 +1,11 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -11,11 +13,14 @@ export default function SignupPage() {
       <main className="grid min-h-screen lg:grid-cols-[0.95fr_1.05fr]">
         <section className="flex items-center justify-center px-5 py-12 md:px-8">
           <div className="w-full max-w-xl rounded-[28px] border border-white/60 bg-white/80 p-8 shadow-[0_24px_80px_rgba(26,28,25,0.08)] backdrop-blur xl:p-10">
-            <Link href="/" className="font-headline text-3xl font-bold italic tracking-tight">NakTide</Link>
+            <div className="flex items-center justify-between gap-3">
+              <Link href="/" className="font-headline text-3xl font-bold italic tracking-tight">NakTide</Link>
+              <Link href="/" className="text-sm font-semibold text-primary">Back to site</Link>
+            </div>
             <p className="mt-6 text-[10px] font-black uppercase tracking-[0.35em] text-primary/60">Create account</p>
             <h2 className="mt-3 font-headline text-5xl font-semibold tracking-tight">Start your safari profile.</h2>
             <p className="mt-3 text-sm leading-7 text-on-surface-variant">Build your traveler record for Kenya departures, multi-country itineraries, and concierge planning.</p>
-            <form className="mt-8 grid gap-5" onSubmit={(e) => e.preventDefault()}>
+            <form className="mt-8 grid gap-5" onSubmit={(event) => { event.preventDefault(); router.push("/dashboard"); }}>
               <div className="grid gap-5 md:grid-cols-2"><div className="space-y-2"><label htmlFor="first-name" className="text-sm font-semibold">First name</label><input id="first-name" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div><div className="space-y-2"><label htmlFor="last-name" className="text-sm font-semibold">Last name</label><input id="last-name" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div></div>
               <div className="space-y-2"><label htmlFor="email" className="text-sm font-semibold">Email</label><input id="email" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div>
               <div className="space-y-2"><label htmlFor="location" className="text-sm font-semibold">Primary location</label><input id="location" placeholder="Nairobi, Kenya" className="h-12 w-full rounded-xl border border-outline-variant/25 bg-[#fbf8f1] px-4 outline-none focus:border-primary" /></div>

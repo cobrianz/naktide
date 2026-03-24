@@ -72,7 +72,7 @@ export function AdminBillingManager({ initialRecords }: { initialRecords: Billin
         <Card className="rounded-lg border-[#d8c9b4] bg-[#fffaf2] shadow-[0_18px_50px_rgba(108,76,41,0.08)]">
           <CardHeader><CardTitle className="text-[#23180d]">Financial ledger</CardTitle></CardHeader>
           <CardContent className="overflow-x-auto px-0 pb-0">
-            <Table>
+            <Table className="min-w-[980px]">
               <TableHeader>
                 <TableRow className="border-[#eadbc7] hover:bg-transparent">
                   <TableHead className="px-6 text-[#8b7a66]">Supplier</TableHead>
@@ -105,4 +105,5 @@ export function AdminBillingManager({ initialRecords }: { initialRecords: Billin
     </div>
   );
 }
+
 

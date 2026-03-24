@@ -122,7 +122,7 @@ export function AdminCustomersManager({ initialCustomers }: { initialCustomers: 
         </div>
       </CardHeader>
       <CardContent className="overflow-x-auto px-0 pb-0">
-        <Table>
+        <Table className="min-w-[820px]">
           <TableHeader>
             <TableRow className="border-[#eadbc7] hover:bg-transparent">
               <TableHead className="px-6 text-[#8b7a66]">Traveler</TableHead>
@@ -260,4 +260,5 @@ export function AdminCustomersManager({ initialCustomers }: { initialCustomers: 
     </Card>
   );
 }
+
 

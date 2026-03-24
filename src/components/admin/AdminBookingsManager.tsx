@@ -143,7 +143,7 @@ export function AdminBookingsManager({ initialBookings }: { initialBookings: Boo
         </div>
       </CardHeader>
       <CardContent className="overflow-x-auto px-0 pb-0">
-        <Table>
+        <Table className="min-w-[860px]">
           <TableHeader>
             <TableRow className="border-[#eadbc7] hover:bg-transparent">
               <TableHead className="px-6 text-[#8b7a66]">Reference</TableHead>
@@ -312,4 +312,5 @@ export function AdminBookingsManager({ initialBookings }: { initialBookings: Boo
     </Card>
   );
 }
+
 
