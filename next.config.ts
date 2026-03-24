@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const nextConfig: NextConfig = {
   reactCompiler: true,
   async headers() {
@@ -20,8 +22,8 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://images.pexels.com",
               "font-src 'self' https://fonts.gstatic.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "script-src 'self'",
-              "connect-src 'self'",
+              `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+              `connect-src 'self'${isDev ? " ws: wss: http://localhost:3000" : ""}`,
               "object-src 'none'",
               "form-action 'self'",
               "upgrade-insecure-requests",
