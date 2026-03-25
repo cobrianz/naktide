@@ -60,11 +60,10 @@ export function getHeroSlides(tours: Adventure[], media: MediaAsset[], limit = 6
 }
 
 export function getTourGalleryImages(tour: Adventure, media: MediaAsset[]) {
-  const taggedMedia = media.filter((asset) => asset.surface !== "hero" && matchesTag(asset.tag, tour)).map((asset) => asset.url);
-  if (taggedMedia.length) {
-    return unique([tour.image, ...taggedMedia]);
-  }
-  return unique([tour.image, ...(tour.images ?? [])]);
+  const taggedMedia = media
+    .filter((asset) => asset.surface !== "hero" && matchesTag(asset.tag, tour))
+    .map((asset) => asset.url);
+  return taggedMedia.length ? unique(taggedMedia) : unique([tour.image]);
 }
 
 export function getFeaturedEditorial(blogPosts: BlogPost[], media: MediaAsset[]) {

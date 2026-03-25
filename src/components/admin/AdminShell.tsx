@@ -8,13 +8,6 @@ import { useState } from "react";
 
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 const links = [
   { label: "Overview", href: "/admin", icon: "space_dashboard" },
@@ -25,13 +18,6 @@ const links = [
   { label: "Content", href: "/admin/content", icon: "campaign" },
   { label: "Inventory", href: "/admin/inventory", icon: "inventory_2" },
   { label: "Settings", href: "/admin/settings", icon: "tune" },
-];
-
-const quickActions = [
-  { label: "Create tour", href: "/admin/content#tours" },
-  { label: "Add gallery", href: "/admin/content#media" },
-  { label: "Publish blog", href: "/admin/content#blogs" },
-  { label: "View bookings", href: "/admin/bookings" },
 ];
 
 function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void }) {
@@ -73,7 +59,12 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
         <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60">Mode</p>
         <p className="mt-2 text-2xl font-black">Live safari desk</p>
         <p className="mt-2 text-sm font-medium text-on-surface-variant">Use this console to coordinate departures, guest communications, payments, and field inventory.</p>
-        <LogoutButton className="mt-4 w-full justify-center rounded-xl" />
+        <div className="mt-4 flex gap-3">
+          <Link href="/" className="inline-flex flex-1 items-center justify-center rounded-xl border border-[#1a1c19]/10 px-4 py-2 text-sm font-semibold transition hover:bg-[#f8f0e3]">
+            Public site
+          </Link>
+          <LogoutButton className="flex-1 justify-center rounded-xl" />
+        </div>
       </div>
     </aside>
   );
@@ -82,7 +73,6 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [quickActionsOpen, setQuickActionsOpen] = useState(false);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,_rgba(173,44,0,0.10),_transparent_20%),linear-gradient(180deg,#faf6ed_0%,#f1e7d7_100%)] text-on-background">
@@ -128,15 +118,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 </div>
               </div>
               <div className="hidden flex-wrap gap-3 md:flex">
-                <Button variant="outline" className="rounded-full border-[#1a1c19]/10 bg-white" onClick={() => setQuickActionsOpen(true)}>
-                  <span className="material-symbols-outlined mr-2 text-base">bolt</span>
-                  Quick action
-                </Button>
                 <Link href="/" className="rounded-full border border-[#1a1c19]/10 bg-white px-4 py-2 text-sm font-semibold text-on-background">
                   Public site
-                </Link>
-                <Link href="/dashboard" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white">
-                  Traveler view
                 </Link>
                 <LogoutButton className="rounded-full border border-[#1a1c19]/10 bg-white px-4 py-2 text-sm font-semibold text-on-background" />
               </div>
@@ -146,27 +129,6 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <main className="flex-1 overflow-x-auto px-4 py-6 md:px-6 lg:px-8">{children}</main>
         </div>
       </div>
-
-      <Dialog open={quickActionsOpen} onOpenChange={setQuickActionsOpen}>
-        <DialogContent className="max-w-md rounded-lg bg-[#fffaf2]">
-          <DialogHeader>
-            <DialogTitle>Quick action</DialogTitle>
-            <DialogDescription>Jump directly into common safari operations tasks.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-3">
-            {quickActions.map((action) => (
-              <Link
-                key={action.href}
-                href={action.href}
-                onClick={() => setQuickActionsOpen(false)}
-                className="rounded-lg border border-[#eadbc7] bg-white px-4 py-3 text-sm font-semibold text-[#23180d] transition hover:bg-[#f8f0e3]"
-              >
-                {action.label}
-              </Link>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

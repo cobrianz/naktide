@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 function normalizeCallback(value: string | null) {
@@ -12,15 +12,13 @@ function normalizeCallback(value: string | null) {
 
 export default function SignupPage() {
   const router = useRouter();
-  const [callback, setCallback] = useState("/dashboard");
+  const searchParams = useSearchParams();
+  const callback = normalizeCallback(searchParams.get("callback"));
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", location: "Nairobi, Kenya", password: "" });
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
-  useEffect(() => {
-    setCallback(normalizeCallback(new URLSearchParams(window.location.search).get("callback")));
-  }, []);
 
   const loginHref = callback === "/dashboard" ? "/auth/login" : `/auth/login?callback=${encodeURIComponent(callback)}`;
 

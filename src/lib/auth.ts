@@ -4,7 +4,8 @@ import { cookies } from "next/headers";
 
 import { getDb } from "@/lib/mongodb";
 
-const SESSION_TTL_SECONDS = 60 * 60 * 12;
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 365;
+const SESSION_REFRESH_WINDOW_SECONDS = 60 * 60 * 24 * 30;
 const SESSION_COOKIE = process.env.NODE_ENV === "production" ? "__Host-naktide_session" : "naktide_session";
 
 type UserRecord = {
@@ -23,6 +24,16 @@ type SessionRecord = {
   createdAt: string;
   expiresAt: string;
 };
+
+function sessionCookieOptions(maxAge: number) {
+  return {
+    httpOnly: true,
+    sameSite: "strict" as const,
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    maxAge,
+  };
+}
 
 function hashPassword(password: string) {
   const salt = randomUUID();
@@ -83,13 +94,7 @@ export async function createSession(user: { id: string; role: "traveler" | "admi
   };
   await sessions.insertOne(session);
   const store = await cookies();
-  store.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "strict",
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: SESSION_TTL_SECONDS,
-  });
+  store.set(SESSION_COOKIE, token, sessionCookieOptions(SESSION_TTL_SECONDS));
   return session;
 }
 
@@ -126,6 +131,12 @@ export async function getCurrentSession() {
       maxAge: 0,
     });
     return null;
+  }
+  if (Date.parse(session.expiresAt) - Date.now() <= SESSION_REFRESH_WINDOW_SECONDS * 1000) {
+    const refreshedExpiry = new Date(Date.now() + SESSION_TTL_SECONDS * 1000).toISOString();
+    await db.collection<SessionRecord>("sessions").updateOne({ token }, { $set: { expiresAt: refreshedExpiry } });
+    store.set(SESSION_COOKIE, token, sessionCookieOptions(SESSION_TTL_SECONDS));
+    return { ...session, expiresAt: refreshedExpiry };
   }
   return session;
 }

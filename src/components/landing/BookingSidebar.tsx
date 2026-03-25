@@ -2,20 +2,16 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import type { Adventure } from "@/api/adventures";
 import BookingModal from "./BookingModal";
 
 export default function BookingSidebar({ adventure }: { adventure: Adventure }) {
   const searchParams = useSearchParams();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (searchParams.get("book") === "1") {
-      setIsModalOpen(true);
-    }
-  }, [searchParams]);
+  const [manualOpen, setManualOpen] = useState(false);
+  const [autoOpenDismissed, setAutoOpenDismissed] = useState(false);
+  const isModalOpen = manualOpen || (searchParams.get("book") === "1" && !autoOpenDismissed);
 
   return (
     <>
@@ -53,7 +49,10 @@ export default function BookingSidebar({ adventure }: { adventure: Adventure }) 
           </ul>
 
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              setAutoOpenDismissed(false);
+              setManualOpen(true);
+            }}
             className="mb-4 w-full rounded-xl bg-primary py-4 font-bold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary-fixed hover:text-on-primary-fixed"
             type="button"
           >
@@ -76,7 +75,14 @@ export default function BookingSidebar({ adventure }: { adventure: Adventure }) 
         </div>
       </div>
 
-      <BookingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} adventure={adventure} />
+      <BookingModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setManualOpen(false);
+          setAutoOpenDismissed(true);
+        }}
+        adventure={adventure}
+      />
     </>
   );
 }

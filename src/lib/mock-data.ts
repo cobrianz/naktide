@@ -59,6 +59,45 @@ type OperationsFeedItem = {
 
 let seedPromise: Promise<void> | null = null;
 
+function uniqueImages(values: string[]) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function buildTourMediaAssets(tour: Adventure): Omit<MediaAsset, "id">[] {
+  return uniqueImages([tour.image, ...(tour.images ?? [])]).map((url, index) => ({
+    title: index === 0 ? `${tour.title} cover` : `${tour.title} gallery ${index}`,
+    url,
+    tag: tour.id,
+    surface: index === 0 ? "tour" : "gallery",
+  }));
+}
+
+async function syncTourMediaAssets(db: Awaited<ReturnType<typeof getDb>>, tour: Adventure) {
+  const mediaCollection = db.collection<MediaAsset>("mediaAssets");
+  const existing = await mediaCollection.find({ tag: tour.id }).toArray();
+  const existingUrls = new Set(existing.map((item) => item.url));
+  const missing = buildTourMediaAssets(tour).filter((item) => !existingUrls.has(item.url));
+
+  if (!missing.length) return;
+
+  await mediaCollection.insertMany(missing.map((item, index) => ({ ...item, id: `media-${Date.now()}-${index}` })));
+}
+
+async function ensureGalleryMediaMigration(
+  db: Awaited<ReturnType<typeof getDb>>,
+  meta: { findOne: (query: { key: string }) => Promise<{ key: string; seededAt: string } | null>; insertOne: (value: { key: string; seededAt: string }) => Promise<unknown> },
+) {
+  const migrated = await meta.findOne({ key: "gallery-media-v1" });
+  if (migrated) return;
+
+  const tours = await db.collection<Adventure>("adventures").find({}).toArray();
+  for (const tour of tours) {
+    await syncTourMediaAssets(db, tour);
+  }
+
+  await meta.insertOne({ key: "gallery-media-v1", seededAt: new Date().toISOString() });
+}
+
 function toPlainValue<T>(value: T): T {
   if (Array.isArray(value)) {
     return value.map((item) => toPlainValue(item)) as T;
@@ -90,57 +129,59 @@ async function ensureSeeded() {
       const db = await getDb();
       const meta = db.collection<{ key: string; seededAt: string }>("meta");
       const existing = await meta.findOne({ key: "seed-v1" });
-      if (existing) return;
+      if (!existing) {
+        const profile = await seedSource.getUserProfile();
+        const messages = await seedSource.getUserMessages();
+        const bookings = await seedSource.getUserBookings();
+        const wishlist = await seedSource.getWishlist();
+        const settings = await seedSource.getUserSettings();
+        const customers = await seedSource.getAdminCustomers();
+        const inventory = await seedSource.getInventory();
+        const adminSettings = await seedSource.getAdminSettings();
+        const tours = await seedSource.getCatalogue();
+        const notifications = await seedSource.getSiteNotifications();
+        const media = await seedSource.getMediaAssets();
+        const billing = await seedSource.getBillingRecords();
+        const analytics = await seedSource.getAnalytics();
+        const blogs = await seedSource.getBlogPosts();
+        const ops = await seedSource.getOperationsFeed();
 
-      const profile = await seedSource.getUserProfile();
-      const messages = await seedSource.getUserMessages();
-      const bookings = await seedSource.getUserBookings();
-      const wishlist = await seedSource.getWishlist();
-      const settings = await seedSource.getUserSettings();
-      const customers = await seedSource.getAdminCustomers();
-      const inventory = await seedSource.getInventory();
-      const adminSettings = await seedSource.getAdminSettings();
-      const tours = await seedSource.getCatalogue();
-      const notifications = await seedSource.getSiteNotifications();
-      const media = await seedSource.getMediaAssets();
-      const billing = await seedSource.getBillingRecords();
-      const analytics = await seedSource.getAnalytics();
-      const blogs = await seedSource.getBlogPosts();
-      const ops = await seedSource.getOperationsFeed();
+        await db.collection<UserRecord>("users").insertMany([
+          {
+            id: profile.id,
+            email: profile.email.toLowerCase(),
+            name: profile.name,
+            role: "traveler",
+            passwordHash: hashPassword("Traveler123!"),
+          },
+          {
+            id: "admin-001",
+            email: "admin@naktide.com",
+            name: "NakTide Admin",
+            role: "admin",
+            passwordHash: hashPassword("Admin123!"),
+          },
+        ]);
 
-      await db.collection<UserRecord>("users").insertMany([
-        {
-          id: profile.id,
-          email: profile.email.toLowerCase(),
-          name: profile.name,
-          role: "traveler",
-          passwordHash: hashPassword("Traveler123!"),
-        },
-        {
-          id: "admin-001",
-          email: "admin@naktide.com",
-          name: "NakTide Admin",
-          role: "admin",
-          passwordHash: hashPassword("Admin123!"),
-        },
-      ]);
+        await db.collection<UserProfile>("userProfiles").insertOne(profile);
+        await db.collection<UserMessage>("messages").insertMany(messages.map((item) => ({ ...item, userId: profile.id })) as (UserMessage & { userId: string })[]);
+        await db.collection<Booking>("bookings").insertMany(bookings);
+        await db.collection<WishlistItem>("wishlist").insertMany(wishlist.map((item) => ({ ...item, userId: profile.id })) as (WishlistItem & { userId: string })[]);
+        await db.collection<UserSettings & { userId: string }>("userSettings").insertOne({ ...settings, userId: profile.id });
+        await db.collection<AdminCustomer>("adminCustomers").insertMany(customers);
+        await db.collection("inventory").insertMany(inventory);
+        await db.collection<AdminSettings>("adminSettings").insertOne(adminSettings);
+        await db.collection<Adventure>("adventures").insertMany(tours);
+        await db.collection<SiteNotification>("siteNotifications").insertMany(notifications);
+        await db.collection<MediaAsset>("mediaAssets").insertMany(media);
+        await db.collection<BillingRecord>("billingRecords").insertMany(billing);
+        await db.collection<AnalyticsDatum>("analytics").insertMany(analytics);
+        await db.collection<BlogPost>("blogPosts").insertMany(blogs);
+        await db.collection<OperationsFeedItem>("operationsFeed").insertMany(ops);
+        await meta.insertOne({ key: "seed-v1", seededAt: new Date().toISOString() });
+      }
 
-      await db.collection<UserProfile>("userProfiles").insertOne(profile);
-      await db.collection<UserMessage>("messages").insertMany(messages.map((item) => ({ ...item, userId: profile.id })) as (UserMessage & { userId: string })[]);
-      await db.collection<Booking>("bookings").insertMany(bookings);
-      await db.collection<WishlistItem>("wishlist").insertMany(wishlist.map((item) => ({ ...item, userId: profile.id })) as (WishlistItem & { userId: string })[]);
-      await db.collection<UserSettings & { userId: string }>("userSettings").insertOne({ ...settings, userId: profile.id });
-      await db.collection<AdminCustomer>("adminCustomers").insertMany(customers);
-      await db.collection("inventory").insertMany(inventory);
-      await db.collection<AdminSettings>("adminSettings").insertOne(adminSettings);
-      await db.collection<Adventure>("adventures").insertMany(tours);
-      await db.collection<SiteNotification>("siteNotifications").insertMany(notifications);
-      await db.collection<MediaAsset>("mediaAssets").insertMany(media);
-      await db.collection<BillingRecord>("billingRecords").insertMany(billing);
-      await db.collection<AnalyticsDatum>("analytics").insertMany(analytics);
-      await db.collection<BlogPost>("blogPosts").insertMany(blogs);
-      await db.collection<OperationsFeedItem>("operationsFeed").insertMany(ops);
-      await meta.insertOne({ key: "seed-v1", seededAt: new Date().toISOString() });
+      await ensureGalleryMediaMigration(db, meta);
     })();
   }
 
@@ -563,18 +604,22 @@ export async function createTour(payload: { title: string; location: string; pri
     itinerary: [{ day: 1, title: "Arrival and briefing", description: "Arrival, welcome, and field briefing from the Nairobi desk." }],
   };
   await db.collection<Adventure>("adventures").insertOne(tour);
+  await syncTourMediaAssets(db, tour);
   return tour;
 }
 
 export async function updateTour(idValue: string, partial: Partial<Adventure>) {
   const db = await dataDb();
   await db.collection<Adventure>("adventures").updateOne({ id: idValue }, { $set: partial });
-  return toPlainValue(await db.collection<Adventure>("adventures").findOne({ id: idValue }));
+  const updated = await db.collection<Adventure>("adventures").findOne({ id: idValue });
+  if (updated) await syncTourMediaAssets(db, updated);
+  return toPlainValue(updated);
 }
 
 export async function deleteTour(idValue: string) {
   const db = await dataDb();
   await db.collection<Adventure>("adventures").deleteOne({ id: idValue });
+  await db.collection<MediaAsset>("mediaAssets").deleteMany({ tag: idValue });
   return { ok: true };
 }
 

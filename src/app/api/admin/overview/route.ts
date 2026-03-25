@@ -1,6 +1,11 @@
-import { getAdminOverview, getAnalytics, getOperationsFeed } from "@/lib/mock-data";
+import { getAdminOverview, getAnalytics, getOperationsFeed, getPublicContentSnapshot } from "@/lib/mock-data";
 
 export async function GET() {
-  const [overview, feed, analytics] = await Promise.all([getAdminOverview(), getOperationsFeed(), getAnalytics()]);
-  return Response.json({ data: { overview, feed, analytics } });
+  const [overview, feed, analytics, content] = await Promise.all([
+    getAdminOverview(),
+    getOperationsFeed(),
+    getAnalytics(),
+    getPublicContentSnapshot(),
+  ]);
+  return Response.json({ data: { overview, feed, analytics, content } });
 }
